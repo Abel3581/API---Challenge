@@ -5,6 +5,10 @@ spring:
     username: sa
     password: sa
 
+  sql:
+    init:
+      mode: never # 👈 Esto le dice: "En tests, no toques los archivos .sql"
+
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:

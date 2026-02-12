@@ -21,4 +21,6 @@ public interface ClienteService {
     void eliminar ( Long id );
 
     ClienteResponse actualizarEmail ( Long id , String nuevoEmail );
+
+    List< ClienteResponse> buscarPorNombre ( String nombre );
 }

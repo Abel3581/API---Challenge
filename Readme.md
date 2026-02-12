@@ -54,20 +54,21 @@ Detalles del despliegue:
 
     Persistencia: La base de datos se crea automáticamente con el nombre definido en DB_NAME.
 
-🧪 Ejecución de Tests e Integración
+## 🔍 Búsqueda Avanzada (Stored Procedure)
 
-La suite de tests está diseñada para ser autónoma. Aunque la app usa PostgreSQL, los tests levantan una base H2 en memoria. Esto permite ejecutar pruebas sin necesidad de tener la base de datos de Docker encendida.
+Para cumplir con los requerimientos técnicos de performance y lógica de base de datos, la funcionalidad de **Búsqueda por Nombre** se implementó mediante un **Stored Procedure nativo en PostgreSQL**.
 
-Para correr los tests y ver la cobertura:
-Bash
+* **Lógica:** Realiza una búsqueda por caracteres centrales utilizando el operador `ILIKE` para asegurar que la búsqueda sea insensible a mayúsculas y minúsculas.
+* **Script de Carga:** El procedimiento se crea automáticamente al iniciar la aplicación mediante el script `schema-postgre.sql`, el cual incluye una lógica "inteligente" de inicialización (`CREATE TABLE IF NOT EXISTS` e `INSERT ... ON CONFLICT`), garantizando que los datos de prueba se carguen solo si la base de datos está vacía.
 
-mvn clean test
+## 🧪 Estrategia de Testing
 
-Reporte de Cobertura (JaCoCo)
+El proyecto aplica una **pirámide de pruebas** equilibrada para garantizar la estabilidad:
 
-Al finalizar, podés abrir el reporte detallado en: target/site/jacoco/index.html
+1.  **Tests de Integración (MockMvc + H2):** Se utilizan para validar el flujo completo del CRUD, el manejo de transacciones y la respuesta de los Endpoints. Se configuran con una base de datos **H2 en memoria** para asegurar portabilidad y rapidez.
+2.  **Tests Unitarios (Mockito):** Se aplican específicamente para la lógica del **Stored Procedure**.
 
-    Estado de Cobertura: 100% en las clases de Service y Controller, cubriendo todas las ramificaciones lógicas de validación de Email y CUIT.
+> **Nota técnica sobre el Testing del Procedure:** > Dado que el Stored Procedure utiliza sintaxis nativa de PostgreSQL (`plpgsql`), la cual no es compatible con H2, se optó por un **Test Unitario en la capa de Servicio**. Esto permite validar que la aplicación interactúa correctamente con el contrato del Repository y procesa los resultados adecuadamente, manteniendo la suite de tests independiente del motor de base de datos de producción.
 
 🔌 Endpoints Principales
 
@@ -80,6 +81,8 @@ Al finalizar, podés abrir el reporte detallado en: target/site/jacoco/index.htm
     PUT /api/clientes/{id}: Actualización completa del cliente.
 
     DELETE /api/clientes/{id}: Borrado físico del registro.
+    
+    GET /api/clientes/search?nombre={valor}:** Búsqueda por nombre (implementado vía Stored Procedure).
 
 Ejecución en Local (IntelliJ IDEA)
 

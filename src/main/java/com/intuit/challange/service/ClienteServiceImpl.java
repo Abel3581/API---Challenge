@@ -29,12 +29,12 @@ public class ClienteServiceImpl implements ClienteService {
                 request.getCuit(), request.getEmail());
 
         if (repository.existsByCuit(request.getCuit())) {
-            log.warn("Intento de creación con CUIT duplicado: {}", request.getCuit());
+            log.error("Intento de creación con CUIT duplicado: {}", request.getCuit());
             throw new ArgumentoDuplicadoException("Ya existe un cliente con ese CUIT");
         }
 
         if (repository.existsByEmail(request.getEmail())) {
-            log.warn("Intento de creación con email duplicado: {}", request.getEmail());
+            log.error("Intento de creación con email duplicado: {}", request.getEmail());
             throw new ArgumentoDuplicadoException("Ya existe un cliente con ese email");
         }
 
@@ -71,7 +71,7 @@ public class ClienteServiceImpl implements ClienteService {
 
         Cliente cliente = repository.findById(id)
                 .orElseThrow(() -> {
-                    log.warn("Cliente no encontrado con ID: {}", id);
+                    log.error("Cliente no encontrado con ID: {}", id);
                     return new ClienteNotFoundException(id);
                 });
 
@@ -119,7 +119,7 @@ public class ClienteServiceImpl implements ClienteService {
                  .orElseThrow(() -> new ClienteNotFoundException(id));
 
          if (!cliente.getEmail().equals(nuevoEmail) && repository.existsByEmail(nuevoEmail)) {
-             log.warn("Email duplicado detectado: {}", nuevoEmail);
+             log.error("Email duplicado detectado: {}", nuevoEmail);
              throw new ArgumentoDuplicadoException("El email ya pertenece a otro cliente");
          }
 
@@ -136,7 +136,7 @@ public class ClienteServiceImpl implements ClienteService {
 
         if (!repository.existsById(id)) {
 
-            log.warn("Intento de eliminar cliente inexistente ID: {}", id);
+            log.error("Intento de eliminar cliente inexistente ID: {}", id);
 
             throw new ClienteNotFoundException(id);
         }
@@ -144,6 +144,19 @@ public class ClienteServiceImpl implements ClienteService {
         repository.deleteById(id);
 
         log.info("Cliente eliminado correctamente. ID: {}", id);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<ClienteResponse> buscarPorNombre(String nombre) {
+        log.info("Ejecutando Stored Procedure para buscar: {}", nombre);
+
+        // Llamada al método del repository que usa el SP
+        List<Cliente> clientes = repository.searchByNombreProcedure(nombre);
+
+        return clientes.stream()
+                .map(clienteMapper::mapToResponse)
+                .toList();
     }
 
 

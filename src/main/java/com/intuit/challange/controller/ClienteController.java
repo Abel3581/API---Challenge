@@ -119,4 +119,10 @@ public class ClienteController {
     public void throwException() {
         throw new RuntimeException("Error forzado");
     }
+
+    @GetMapping("/search")
+    @Operation(summary = "Búsqueda por nombre", description = "Busca clientes mediante un Stored Procedure")
+    public ResponseEntity<List<ClienteResponse>> buscarPorNombre(@RequestParam String nombre) {
+        return ResponseEntity.ok(service.buscarPorNombre(nombre));
+    }
 }

@@ -43,7 +43,7 @@ public class ClienteControllerIntegrationTest {
                 .nombre("Juan")
                 .apellido("Perez")
                 .razonSocial("JP Servicios SRL")
-                .cuit("20301234567")
+                .cuit("20-30123456-7")
                 .fechaNacimiento(LocalDate.of(1990, 5, 10))
                 .telefonoCelular("1165874210")
                 .email("juan@gmail.com")
@@ -92,7 +92,7 @@ public class ClienteControllerIntegrationTest {
 
         // Intentar crear duplicado con mismo email
         clienteValido.setEmail("juan@gmail.com");
-        clienteValido.setCuit("27234567891");
+        clienteValido.setCuit("27-23456789-1");
         mockMvc.perform(post("/api/clientes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(clienteValido)))
@@ -111,7 +111,7 @@ public class ClienteControllerIntegrationTest {
 
         // Intentar crear duplicado con CUIT
         clienteValido.setEmail("juan_perez@gmail.com");
-        clienteValido.setCuit("20301234567");
+        clienteValido.setCuit("20-30123456-7");
         mockMvc.perform(post("/api/clientes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(clienteValido)))
@@ -195,7 +195,7 @@ public class ClienteControllerIntegrationTest {
         registrarCliente(clienteValido);
 
         // 2. Crear Cliente B (con datos distintos)
-        ClienteRequest requestB = crearRequest("Otro", "27444444442", "otro@test.com");
+        ClienteRequest requestB = crearRequest("Otro", "27-44444444-2", "otro@test.com");
         ClienteResponse clienteB = registrarCliente(requestB);
 
         // 3. Intentar ponerle a B el CUIT de A
@@ -215,7 +215,7 @@ public class ClienteControllerIntegrationTest {
         registrarCliente(clienteValido);
 
         // 2. Crear Cliente B
-        ClienteRequest requestB = crearRequest("Maria", "27444444442", "maria@test.com");
+        ClienteRequest requestB = crearRequest("Maria", "27-44444444-2", "maria@test.com");
         ClienteResponse clienteB = registrarCliente(requestB);
 
         // 3. Intentar ponerle a B el Email de A
@@ -251,7 +251,7 @@ public class ClienteControllerIntegrationTest {
         // 3. Mandamos un CUIT diferente que NO existe en la BD.
         // (!cliente.equals(request)) es TRUE, pero repository.exists es FALSE.
         // Cubre la segunda parte del '&&' en su rama falsa.
-        clienteValido.setCuit("27999999991");
+        clienteValido.setCuit("27-99999999-1");
 
         mockMvc.perform(put("/api/clientes/" + creado.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -265,12 +265,12 @@ public class ClienteControllerIntegrationTest {
         // 4. Creamos Cliente A y Cliente B.
         registrarCliente(clienteValido); // CUIT: 20301234567
 
-        ClienteRequest reqB = crearRequest("Maria", "27444444442", "maria@test.com");
+        ClienteRequest reqB = crearRequest("Maria", "27-44444444-2", "maria@test.com");
         ClienteResponse resB = registrarCliente(reqB);
 
         // Intentamos ponerle a B el CUIT de A.
         // TRUE && TRUE -> Lanza excepción.
-        reqB.setCuit("20301234567");
+        reqB.setCuit("20-30123456-7");
 
         mockMvc.perform(put("/api/clientes/" + resB.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -316,7 +316,7 @@ public class ClienteControllerIntegrationTest {
         // 4. Creamos Cliente A (con email original) y Cliente B.
         registrarCliente(clienteValido); // Email: juan@gmail.com
 
-        ClienteRequest reqB = crearRequest("Maria", "27444444442", "maria@test.com");
+        ClienteRequest reqB = crearRequest("Maria", "27-44444444-2", "maria@test.com");
         ClienteResponse resB = registrarCliente(reqB);
 
         // Intentamos ponerle a B el Email de A.
@@ -419,66 +419,6 @@ public class ClienteControllerIntegrationTest {
     }
 
     /* ===============================
-       PATCH EMAIL TESTS
-       =============================== */
-/*
-    @Test
-    @DisplayName("PATCH Email - Debería cambiar el email con éxito cuando es válido y no existe en la BD")
-    void actualizarEmail_DeberiaTenerExito() throws Exception {
-        // Cubre: (!mismoEmail && !existeEnBD) -> Actualiza con éxito
-        ClienteResponse creado = registrarCliente(clienteValido);
-        String nuevoEmail = "nuevo_email@test.com";
-
-        mockMvc.perform(patch("/api/clientes/" + creado.getId() + "/email")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(nuevoEmail))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value(nuevoEmail));
-    }
-
-    @Test
-    @DisplayName("PATCH Email - Debería retornar 400 cuando el email ya pertenece a otro cliente")
-    void actualizarEmail_DeberiaRetornarErrorPorDuplicado() throws Exception {
-        // Cubre: (!mismoEmail && existeEnBD) -> Lanza ArgumentoDuplicadoException
-        registrarCliente(clienteValido); // Cliente A: juan@gmail.com
-
-        ClienteRequest reqB = crearRequest("Maria", "27444444442", "maria@test.com");
-        ClienteResponse resB = registrarCliente(reqB);
-
-        mockMvc.perform(patch("/api/clientes/" + resB.getId() + "/email")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("juan@gmail.com"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message").value("El email ya pertenece a otro cliente"));
-    }
-
-    @Test
-    @DisplayName("PATCH Email - No debería validar duplicados si el email enviado es el mismo que ya tiene el cliente")
-    void actualizarEmail_MismoEmail_DeberiaPasarSinValidar() throws Exception {
-        // Cubre: (mismoEmail) -> El cortocircuito del IF (pone la línea en VERDE)
-        ClienteResponse creado = registrarCliente(clienteValido);
-
-        mockMvc.perform(patch("/api/clientes/" + creado.getId() + "/email")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("juan@gmail.com"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("juan@gmail.com"));
-    }
-
-    @Test
-    @DisplayName("PATCH Email - Debería retornar 404 estructurado cuando el ID del cliente no existe")
-    void actualizarEmail_DeberiaRetornarNotFound() throws Exception {
-        // Cubre: .orElseThrow(() -> new ClienteNotFoundException(id))
-        mockMvc.perform(patch("/api/clientes/9999/email")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("test@test.com"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404));
-    }
-
- */
-    /* ===============================
        PATCH EMAIL TESTS (Versión DTO)
        =============================== */
 
@@ -501,7 +441,7 @@ public class ClienteControllerIntegrationTest {
     void actualizarEmail_DeberiaRetornarErrorPorDuplicado() throws Exception {
         registrarCliente(clienteValido); // Cliente A: juan@gmail.com
 
-        ClienteRequest reqB = crearRequest("Maria", "27444444442", "maria@test.com");
+        ClienteRequest reqB = crearRequest("Maria", "27-44444444-2", "maria@test.com");
         ClienteResponse resB = registrarCliente(reqB);
 
         EmailUpdateRequest request = new EmailUpdateRequest("juan@gmail.com");

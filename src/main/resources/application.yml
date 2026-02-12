@@ -15,8 +15,16 @@ spring:
   jpa:
     hibernate:
       ddl-auto: ${HIBERNATE_DDL:update}
+    defer-datasource-initialization: true # Espera a que Hibernate cree las tablas antes de correr el SQL
 
     show-sql: ${SHOW_SQL:true}
+
+  sql:
+    init:
+      mode: always
+      separator: "^^" # Cambiamos el separador a algo que no uses en el SQL
+      # Especificamos la ruta del script si no usa el nombre por defecto
+      schema-locations: classpath:schema-postgre.sql
 
   profiles:
     active: dev
