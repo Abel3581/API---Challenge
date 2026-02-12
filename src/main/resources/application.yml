@@ -40,10 +40,10 @@ spring:
 
 logging:
   level:
-   # org.hibernate.SQL: debug
-    #org.hibernate.type.descriptor.sql.BasicBinder: trace
     root: INFO
     com.intuit.challange: DEBUG
+    org.hibernate.SQL: DEBUG          # Muestra el SQL limpio
+    org.hibernate.type.descriptor.sql: TRACE # Muestra los parámetros que enviás al SQL
 
 springdoc:
   swagger-ui:

@@ -138,10 +138,11 @@ public class ClienteControllerIntegrationTest {
                 // En Page, los datos vienen dentro de "content"
                 .andExpect(jsonPath("$.content", hasSize(1)))
                 .andExpect(jsonPath("$.content[0].nombre").value("Juan"))
-                // Metadata de paginación que suma puntos de Seniority verificar
-                .andExpect(jsonPath("$.totalElements").value(1))
-                .andExpect(jsonPath("$.totalPages").value(1))
-                .andExpect(jsonPath("$.number").value(0)); // Página actual
+                // Metadata de paginación
+                .andExpect(jsonPath("$.page.totalElements").value(1))
+                .andExpect(jsonPath("$.page.totalPages").value(1))
+                .andExpect(jsonPath("$.page.number").value(0))
+                .andExpect(jsonPath("$.page.size").value(10));
     }
 
     /* ===============================
