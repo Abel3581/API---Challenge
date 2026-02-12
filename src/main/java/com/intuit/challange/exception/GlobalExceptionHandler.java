@@ -1,7 +1,6 @@
 package com.intuit.challange.exception;
 
 import com.intuit.challange.dto.ApiErrorResponse;
-import com.intuit.challange.dto.MensajeResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;

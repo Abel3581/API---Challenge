@@ -28,9 +28,9 @@ Ini, TOML
 # DATABASE CONFIG
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=clientes_bd
-DB_USERNAME=postgres
-DB_PASSWORD=1234
+DB_NAME=clientes_bd => tu bdName
+DB_USERNAME=postgres => tu usernameBd
+DB_PASSWORD=1234 => tu passwordBd
 
 # JPA / HIBERNATE
 HIBERNATE_DDL=update
@@ -110,14 +110,8 @@ La API cuenta con documentación interactiva generada con SpringDoc OpenAPI. Una
 
 ¿Qué vas a encontrar en Swagger?
 
-    Interactividad: Podés ejecutar peticiones POST, PUT y PATCH directamente desde el navegador.
+    Interactividad: Podés ejecutar peticiones POST, PUT y PATCH, DELETE, GET directamente desde el navegador.
 
     Modelos de Datos: Explicación detallada de los esquemas ClienteRequest, ClienteResponse y ApiErrorResponse.
 
-    Respuestas de Error: Documentación de los códigos de estado HTTP (200, 201, 400, 404, 500).
-
-Pasos finales recomendados:
-
-    Asegurate de que tu Dockerfile esté en la raíz del proyecto.
-
-    Verificá que el archivo .env no se suba al repositorio público (añadilo al .gitignore), pero dejá un .env.example para que el evaluador sepa qué valores poner.
+    Respuestas de Error: Documentación de los códigos de estado HTTP (200, 201, 400, 404, 409).
