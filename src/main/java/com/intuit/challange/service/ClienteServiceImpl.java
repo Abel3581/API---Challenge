@@ -137,7 +137,10 @@ public class ClienteServiceImpl implements ClienteService {
     public List<ClienteResponse> buscarPorNombre(String nombre) {
         log.info("Ejecutando Stored Procedure para buscar: {}", nombre);
 
-        // Llamada al método del repository que usa el SP
+        /* * Nota técnica: Se retorna List para priorizar la simplicidad del Stored Procedure.
+         * En un entorno con grandes volúmenes de datos, se recomienda evolucionar a
+         * paginación nativa (LIMIT/OFFSET) para optimizar el consumo de memoria.
+         */
         List<Cliente> clientes = repository.searchByNombreProcedure(nombre);
 
         return clientes.stream()
