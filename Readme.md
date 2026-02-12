@@ -97,6 +97,22 @@ Para correr el proyecto desde el IDE cargando automáticamente la configuración
 
     Ejecutar: Ahora podés darle a Run o Debug y la app tomará todas las credenciales de base de datos y puertos definidos en el archivo.
 
+📖 Documentación de la API (Swagger)
+
+La API cuenta con documentación interactiva generada con SpringDoc OpenAPI. Una vez que la aplicación esté corriendo, podés acceder a la interfaz de Swagger para visualizar y probar todos los endpoints:
+
+    Swagger UI: http://localhost:8080/swagger-ui/index.html
+
+    OpenAPI Spec (JSON): http://localhost:8080/v3/api-docs
+
+¿Qué vas a encontrar en Swagger?
+
+    Interactividad: Podés ejecutar peticiones POST, PUT y PATCH directamente desde el navegador.
+
+    Modelos de Datos: Explicación detallada de los esquemas ClienteRequest, ClienteResponse y ApiErrorResponse.
+
+    Respuestas de Error: Documentación de los códigos de estado HTTP (200, 201, 400, 404, 500).
+
 Pasos finales recomendados:
 
     Asegurate de que tu Dockerfile esté en la raíz del proyecto.
