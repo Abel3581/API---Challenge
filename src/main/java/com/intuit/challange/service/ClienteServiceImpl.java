@@ -48,24 +48,6 @@ public class ClienteServiceImpl implements ClienteService {
 
         return clienteMapper.mapToResponse(guardado);
     }
-/*
-    @Transactional(readOnly = true)
-    @Override
-    public List<ClienteResponse> listar() {
-
-        log.debug("Listando todos los clientes");
-
-        List<ClienteResponse> clientes = repository.findAll()
-                .stream()
-                .map(clienteMapper::mapToResponse)
-                .toList();
-
-        log.info("Se encontraron {} clientes", clientes.size());
-
-        return clientes;
-    }
-
- */
 
     @Transactional(readOnly = true)
     @Override
