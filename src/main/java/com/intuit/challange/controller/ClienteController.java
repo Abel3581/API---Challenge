@@ -44,16 +44,7 @@ public class ClienteController {
     public ResponseEntity<ClienteResponse> crear(@Valid @RequestBody ClienteRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.crear(request));
     }
-/*
-    @GetMapping
-    @Operation(summary = "Obtener todos los clientes",
-            description = "Retorna una lista completa de los clientes registrados en formato simplificado.")
-    @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente")
-    public ResponseEntity<List<ClienteResponse>> listar() {
-        return ResponseEntity.ok(service.listar());
-    }
 
- */
     @Operation(summary = "Listar clientes con paginación",
             description = "Obtiene una lista paginada de todos los clientes. Permite configurar el número de página, tamaño y ordenamiento.")
     @ApiResponses({
@@ -144,4 +135,5 @@ public class ClienteController {
     public ResponseEntity<List<ClienteResponse>> buscarPorNombre(@RequestParam String nombre) {
         return ResponseEntity.ok(service.buscarPorNombre(nombre));
     }
+
 }
