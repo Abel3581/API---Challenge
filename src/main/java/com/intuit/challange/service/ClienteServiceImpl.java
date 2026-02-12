@@ -10,6 +10,8 @@ import com.intuit.challange.repository.ClienteRepository;
 import com.intuit.challange.service.abstraction.ClienteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -46,7 +48,7 @@ public class ClienteServiceImpl implements ClienteService {
 
         return clienteMapper.mapToResponse(guardado);
     }
-
+/*
     @Transactional(readOnly = true)
     @Override
     public List<ClienteResponse> listar() {
@@ -62,6 +64,8 @@ public class ClienteServiceImpl implements ClienteService {
 
         return clientes;
     }
+
+ */
 
     @Transactional(readOnly = true)
     @Override
@@ -157,6 +161,16 @@ public class ClienteServiceImpl implements ClienteService {
         return clientes.stream()
                 .map(clienteMapper::mapToResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page <ClienteResponse> listar( Pageable pageable) {
+        log.debug("Listando clientes paginados: página {}, tamaño {}",
+                pageable.getPageNumber(), pageable.getPageSize());
+
+        return repository.findAll(pageable)
+                .map(clienteMapper::mapToResponse);
     }
 
 

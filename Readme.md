@@ -26,11 +26,16 @@ El proyecto utiliza un archivo .env para configurar la conexión a la base de da
 Ini, TOML
 
 # DATABASE CONFIG
+### ✅ Configuralos en el archivo .env
 DB_HOST=localhost
+
 DB_PORT=5432
-DB_NAME=clientes_bd => tu bdName
-DB_USERNAME=postgres => tu usernameBd
-DB_PASSWORD=1234 => tu passwordBd
+
+DB_NAME={nombreBd}
+
+DB_USERNAME={tuUsernameBd}
+
+DB_PASSWORD={tuPassword}
 
 # JPA / HIBERNATE
 HIBERNATE_DDL=update

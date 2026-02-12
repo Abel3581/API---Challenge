@@ -16,8 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
-
-
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -121,20 +120,28 @@ public class ClienteControllerIntegrationTest {
     }
 
     /* ===============================
-     READ ALL
+     READ ALL (PAGINADO)
      =============================== */
     @Test
-    @DisplayName("GET - Debería listar todos los clientes registrados")
-    void deberiaListarClientes() throws Exception {
+    @DisplayName("GET - Debería listar clientes de forma paginada")
+    void deberiaListarClientesPaginados() throws Exception {
 
-        // Crear primero
-        mockMvc.perform(post("/api/clientes")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(clienteValido)));
+        // 1. Crear un cliente
+        registrarCliente(clienteValido);
 
-        mockMvc.perform(get("/api/clientes"))
+        // 2. Solicitar página 0 con tamaño 10
+        mockMvc.perform(get("/api/clientes")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1));
+                // En Page, los datos vienen dentro de "content"
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.content[0].nombre").value("Juan"))
+                // Metadata de paginación que suma puntos de Seniority verificar
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.number").value(0)); // Página actual
     }
 
     /* ===============================
