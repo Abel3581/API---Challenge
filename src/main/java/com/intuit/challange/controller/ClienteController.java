@@ -50,7 +50,7 @@ public class ClienteController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista paginada obtenida correctamente",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Page.class))), // 👈 Indica que devuelve un objeto Page
+                            schema = @Schema(implementation = Page.class))),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor",
                     content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
@@ -101,7 +101,7 @@ public class ClienteController {
     })
     public ResponseEntity<ClienteResponse> actualizarEmail(
             @PathVariable Long id,
-            @Valid @RequestBody EmailUpdateRequest request) { // Recibe el string directamente
+            @Valid @RequestBody EmailUpdateRequest request) {
         return ResponseEntity.ok(service.actualizarEmail(id, request.nuevoEmail()));
     }
 

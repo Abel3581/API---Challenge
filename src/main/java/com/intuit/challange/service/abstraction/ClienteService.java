@@ -14,7 +14,6 @@ public interface ClienteService {
     @Nullable
     ClienteResponse crear ( @Valid ClienteRequest request );
 
-  
     @Nullable ClienteResponse buscarPorId ( Long id );
 
     @Nullable ClienteResponse actualizar ( Long id , @Valid ClienteRequest request );
