@@ -1,58 +1,53 @@
 package com.intuit.challange.controller;
 
 import com.intuit.challange.dto.*;
+import com.intuit.challange.exception.TestException;
 import com.intuit.challange.service.abstraction.ClienteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 
 @RestController
-@RequestMapping ("/api/clientes")
+@RequestMapping("/api/clientes")
 @RequiredArgsConstructor
-@Tag (name = "Clientes", description = "API para la gestión integral de clientes")
+@Tag(name = "Clientes", description = "API para la gestión integral de clientes")
 public class ClienteController {
+
     private final ClienteService service;
 
     @PostMapping
     @Operation(summary = "Registrar un nuevo cliente",
-            description = "Crea un cliente en el sistema. Valida que el CUIT y Email sean únicos y que los campos cumplan con el formato requerido.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Cliente creado exitosamente"),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos o duplicados",
-                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
-            @ApiResponse(responseCode = "409", description = "Conflicto de integridad en la base de datos",
-                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
-    })
+            description = "Crea un cliente en el sistema. Valida que el CUIT y Email sean únicos.")
+    @ApiResponse(responseCode = "201", description = "Cliente creado exitosamente")
+    @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos",
+            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(responseCode = "409", description = "Conflicto de integridad",
+            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     public ResponseEntity<ClienteResponse> crear(@Valid @RequestBody ClienteRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.crear(request));
     }
 
+    @GetMapping
     @Operation(summary = "Listar clientes con paginación",
             description = "Obtiene una lista paginada de todos los clientes.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lista paginada obtenida correctamente",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = PagedResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
-                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
-    })
-    @GetMapping
+    @ApiResponse(responseCode = "200", description = "Lista paginada obtenida correctamente",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PagedResponse.class)))
+    @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     public ResponseEntity<PagedResponse<ClienteResponse>> listar(
             @ParameterObject @PageableDefault(page = 0, size = 10, sort = "id") Pageable pageable) {
         return ResponseEntity.ok(service.listar(pageable));
@@ -61,11 +56,9 @@ public class ClienteController {
     @GetMapping("/{id}")
     @Operation(summary = "Obtener cliente por ID",
             description = "Busca un cliente específico. Si no existe, devuelve un error 404.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Cliente encontrado"),
-            @ApiResponse(responseCode = "404", description = "El ID proporcionado no pertenece a ningún cliente",
-                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
-    })
+    @ApiResponse(responseCode = "200", description = "Cliente encontrado")
+    @ApiResponse(responseCode = "404", description = "ID no encontrado",
+            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     public ResponseEntity<ClienteResponse> buscarPorId(
             @Parameter(description = "ID numérico del cliente", example = "1") @PathVariable Long id) {
         return ResponseEntity.ok(service.buscarPorId(id));
@@ -73,14 +66,12 @@ public class ClienteController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar un cliente existente",
-            description = "Actualiza los datos del cliente. Si el CUIT o Email cambian, verifica que no pertenezcan ya a otro registro.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Cliente actualizado correctamente"),
-            @ApiResponse(responseCode = "400", description = "Error en los datos enviados",
-                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "No se encontró el cliente para actualizar",
-                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
-    })
+            description = "Actualiza los datos del cliente validando unicidad de CUIT y Email.")
+    @ApiResponse(responseCode = "200", description = "Cliente actualizado correctamente")
+    @ApiResponse(responseCode = "400", description = "Error en los datos enviados",
+            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(responseCode = "404", description = "No se encontró el cliente",
+            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     public ResponseEntity<ClienteResponse> actualizar(
             @PathVariable Long id,
             @Valid @RequestBody ClienteRequest request) {
@@ -89,14 +80,12 @@ public class ClienteController {
 
     @PatchMapping("/{id}/email")
     @Operation(summary = "Actualizar email del cliente",
-            description = "Modifica únicamente el email del cliente validando que no esté duplicado.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Email actualizado correctamente"),
-            @ApiResponse(responseCode = "400", description = "Email duplicado o formato inválido",
-                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Cliente no encontrado",
-                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
-    })
+            description = "Modifica únicamente el email del cliente.")
+    @ApiResponse(responseCode = "200", description = "Email actualizado correctamente")
+    @ApiResponse(responseCode = "400", description = "Email duplicado o inválido",
+            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(responseCode = "404", description = "Cliente no encontrado",
+            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     public ResponseEntity<ClienteResponse> actualizarEmail(
             @PathVariable Long id,
             @Valid @RequestBody EmailUpdateRequest request) {
@@ -104,18 +93,22 @@ public class ClienteController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar cliente", description = "Borra físicamente el registro del cliente de la base de datos.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Cliente eliminado con éxito"),
-            @ApiResponse(responseCode = "404", description = "El cliente que intenta eliminar no existe",
-                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
-    })
+    @Operation(summary = "Eliminar cliente", description = "Borra físicamente el registro del cliente.")
+    @ApiResponse(responseCode = "204", description = "Cliente eliminado con éxito")
+    @ApiResponse(responseCode = "404", description = "El cliente no existe",
+            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         service.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 
-    // Ocultamos los endpoints de prueba de la documentación pública
+    @GetMapping("/search")
+    @Operation(summary = "Búsqueda por nombre", description = "Busca clientes mediante un Stored Procedure")
+    @ApiResponse(responseCode = "200", description = "Búsqueda completada")
+    public ResponseEntity<List<ClienteResponse>> buscarPorNombre(@RequestParam String nombre) {
+        return ResponseEntity.ok(service.buscarPorNombre(nombre));
+    }
+
     @Operation(hidden = true)
     @GetMapping("/force-duplicate")
     public void forceDuplicate() {
@@ -125,13 +118,6 @@ public class ClienteController {
     @Operation(hidden = true)
     @GetMapping("/throw-exception")
     public void throwException() {
-        throw new RuntimeException("Error forzado");
+        throw new TestException("Error forzado para pruebas");
     }
-
-    @GetMapping("/search")
-    @Operation(summary = "Búsqueda por nombre", description = "Busca clientes mediante un Stored Procedure")
-    public ResponseEntity<List<ClienteResponse>> buscarPorNombre(@RequestParam String nombre) {
-        return ResponseEntity.ok(service.buscarPorNombre(nombre));
-    }
-
 }

@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
 
         ApiErrorResponse response = new ApiErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                "Bad Request",
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 "Error de validación en los datos enviados",
                 request.getRequestURI(),
                 LocalDateTime.now(),
@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
 
         ApiErrorResponse response = new ApiErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                "Bad Request",
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 mensaje,
                 request.getRequestURI(),
                 LocalDateTime.now(),
@@ -103,7 +103,7 @@ public class GlobalExceptionHandler {
 
         ApiErrorResponse response = new ApiErrorResponse(
                 HttpStatus.CONFLICT.value(),
-                "Conflict",
+                HttpStatus.CONFLICT.getReasonPhrase(),
                 mensaje,
                 request.getRequestURI(),
                 LocalDateTime.now(),
@@ -124,7 +124,7 @@ public class GlobalExceptionHandler {
 
         ApiErrorResponse response = new ApiErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal Server Error",
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 "Ocurrió un error inesperado. Contacte al administrador",
                 request.getRequestURI(),
                 LocalDateTime.now(),
@@ -144,7 +144,7 @@ public class GlobalExceptionHandler {
     ){
         ApiErrorResponse response = new ApiErrorResponse(
                 400,
-                "Bad Request",
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 ex.getMessage(),
                 request.getRequestURI(),
                 LocalDateTime.now(),
@@ -162,7 +162,7 @@ public class GlobalExceptionHandler {
 
         ApiErrorResponse response = new ApiErrorResponse(
                 404,
-                "Not Found",
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
                 ex.getMessage(),
                 request.getRequestURI(),
                 LocalDateTime.now(),

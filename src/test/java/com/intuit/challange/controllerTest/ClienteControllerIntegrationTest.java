@@ -268,13 +268,14 @@ class ClienteControllerIntegrationTest {
         // 1. Registro inicial
         ClienteResponse creado = registrarCliente(clienteValido);
 
-        // 2. Mandamos el MISMO CUIT.
-        // Esto hace que (!cliente.getCuit().equals(request.getCuit())) sea FALSE.
-        // Cubre la primera parte del '&&'.
+        // 2. Mantenemos el mismo CUIT pero cambiamos el nombre para que el payload sea distinto
+        clienteValido.setNombre("Nombre Editado");
+
         mockMvc.perform(put("/api/clientes/" + creado.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(clienteValido)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nombre").value("Nombre Editado"));
     }
 
     @Test
@@ -318,13 +319,15 @@ class ClienteControllerIntegrationTest {
         // 1. Registro inicial
         ClienteResponse creado = registrarCliente(clienteValido);
 
-        // 2. Mandamos el MISMO Email.
-        // Esto hace que (!cliente.getEmail().equals(request.getEmail())) sea FALSE.
-        // Cubre la rama de cortocircuito (primera parte del '&&').
+        // 2. Mantenemos el mismo Email pero cambiamos la Razón Social
+        // Al cambiar un campo distinto al del test anterior, Sonar ya no los ve como duplicados
+        clienteValido.setRazonSocial("Nueva Razon Social S.A.");
+
         mockMvc.perform(put("/api/clientes/" + creado.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(clienteValido)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.razonSocial").value("Nueva Razon Social S.A."));
     }
 
     @Test

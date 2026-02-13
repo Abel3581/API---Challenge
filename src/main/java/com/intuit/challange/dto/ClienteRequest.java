@@ -26,7 +26,7 @@ public class ClienteRequest {
 
     @NotBlank(message = "El CUIT es obligatorio")
     @Pattern(
-            regexp = "^\\d{2}-\\d{8}-\\d{1}$",
+            regexp = "^\\d{2}-\\d{8}-\\d$",
             message = "El CUIT debe tener el formato XX-XXXXXXXX-X"
     )
     private String cuit;
