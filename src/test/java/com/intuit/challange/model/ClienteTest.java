@@ -4,7 +4,7 @@ import com.intuit.challange.entity.Cliente;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ClienteTest {
+class ClienteTest {
 
     @Test
     void onUpdate_deberiaActualizarFechaModificacion() {
