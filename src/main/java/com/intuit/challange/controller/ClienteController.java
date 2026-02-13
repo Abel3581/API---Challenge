@@ -116,6 +116,12 @@ public class ClienteController {
     }
 
     @Operation(hidden = true)
+    @GetMapping("/force-duplicate-cuit")
+    public void forceDuplicateCuit() {
+        throw new org.springframework.dao.DataIntegrityViolationException("cuit");
+    }
+
+    @Operation(hidden = true)
     @GetMapping("/throw-exception")
     public void throwException() {
         throw new TestException("Error forzado para pruebas");

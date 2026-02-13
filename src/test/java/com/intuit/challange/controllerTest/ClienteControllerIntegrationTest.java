@@ -441,6 +441,14 @@ class ClienteControllerIntegrationTest {
                 .andExpect(jsonPath("$.message").value("Ya existe un cliente con ese email"));
     }
 
+    @Test
+    @DisplayName("Handler - Debería cubrir mensaje de CUIT duplicado en DB")
+    void deberiaCubrirMensajeCuitDuplicado() throws Exception {
+        mockMvc.perform(get("/api/clientes/force-duplicate-cuit"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Ya existe un cliente con ese CUIT"));
+    }
+
     /* ===============================
        EXCEPCIONES - GENERICA
        =============================== */
