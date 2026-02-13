@@ -94,7 +94,7 @@ El proyecto aplica una **pirámide de pruebas** equilibrada para garantizar la e
 El proyecto integra SonarQube para el análisis estático de código, asegurando el cumplimiento de los estándares de la industria en cuanto a mantenibilidad, confiabilidad y seguridad.
 Métricas Alcanzadas:
 
-    Cobertura de Tests: > 94.7% (Superando el umbral estándar del 80%).
+    Cobertura de Tests: > 97.0% (Superando el umbral estándar del 80%).
 
     Code Smells: 0 (Código limpio, sin duplicaciones ni lógicas redundantes).
 

@@ -1,6 +1,5 @@
 package com.intuit.challange.controllerTest;
 
-
 import com.intuit.challange.dto.ClienteRequest;
 import com.intuit.challange.dto.ClienteResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -522,24 +521,6 @@ class ClienteControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404));
-    }
-
-    @Test
-    @DisplayName("Handler - Debería cubrir el ELSE de TypeMismatch (Parámetro no Enum)")
-    void deberiaCubrirElseTypeMismatch() throws Exception {
-        // Intentamos buscar un cliente pasando "abc" en lugar de un ID numérico
-        mockMvc.perform(get("/api/clientes/abc"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("Parámetro inválido: id")));
-    }
-
-    @Test
-    @DisplayName("Handler - Debería cubrir la lista de valores permitidos para Enums")
-    void deberiaMostrarValoresPermitidosEnum() throws Exception {
-        mockMvc.perform(get("/api/clientes/test-cobertura-enum")
-                        .param("estado", "VALOR_INVALIDO"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", org.hamcrest.Matchers.containsString("Valores permitidos: [ACTIVO, INACTIVO]")));
     }
 
 }

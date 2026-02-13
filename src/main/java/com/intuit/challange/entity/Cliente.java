@@ -88,7 +88,7 @@ public class Cliente {
     }
 
     @PreUpdate
-    protected void onUpdate() {
+    public void onUpdate () {
         this.fechaModificacion = LocalDateTime.now();
     }
 }

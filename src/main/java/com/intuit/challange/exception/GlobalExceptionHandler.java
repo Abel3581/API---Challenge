@@ -57,20 +57,11 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
 
-        String mensaje;
-
-        if (ex.getRequiredType() != null && ex.getRequiredType().isEnum()) {
-
-            mensaje = "El valor '" + ex.getValue() +
-                    "' no es válido para el parámetro '" + ex.getName() +
-                    "'. Valores permitidos: " +
-                    String.join(", ",
-                            Arrays.toString(ex.getRequiredType()
-                                    .getEnumConstants())
-                    );
-        } else {
-            mensaje = "Parámetro inválido: " + ex.getName();
-        }
+        String mensaje = String.format(
+                "El parámetro '%s' recibió un valor inválido: '%s'",
+                ex.getName(),
+                ex.getValue()
+        );
 
         ApiErrorResponse response = new ApiErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),

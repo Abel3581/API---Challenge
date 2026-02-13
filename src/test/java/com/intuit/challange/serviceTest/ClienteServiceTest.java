@@ -11,9 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -61,4 +59,5 @@ class ClienteServiceTest {
         // Verificamos que se llamó al método exacto del SP
         verify(repository, times(1)).searchByNombreProcedure(nombreABuscar);
     }
+
 }

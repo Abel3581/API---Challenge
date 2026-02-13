@@ -1,7 +1,6 @@
 package com.intuit.challange.controller;
 
 import com.intuit.challange.dto.*;
-import com.intuit.challange.enums.EstadoTest;
 import com.intuit.challange.exception.TestException;
 import com.intuit.challange.service.abstraction.ClienteService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-
 
 @RestController
 @RequestMapping("/api/clientes")
@@ -128,10 +126,4 @@ public class ClienteController {
         throw new TestException("Error forzado para pruebas");
     }
 
-    // AGREGÁ ESTO PARA CUBRIR EL IF DE ENUMS
-    @Operation(hidden = true)
-    @GetMapping("/test-cobertura-enum")
-    public void testEnum(@RequestParam EstadoTest estado) {
-        // Solo para disparar MethodArgumentTypeMismatchException con Enums
-    }
 }
