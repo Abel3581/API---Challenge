@@ -7,7 +7,7 @@ spring:
 
   sql:
     init:
-      mode: never # 👈 Esto le dice: "En tests, no toques los archivos .sql"
+      mode: never # Esto le dice: "En tests, no toques los archivos .sql"
 
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect

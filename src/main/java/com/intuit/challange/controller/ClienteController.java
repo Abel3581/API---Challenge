@@ -1,9 +1,6 @@
 package com.intuit.challange.controller;
 
-import com.intuit.challange.dto.ApiErrorResponse;
-import com.intuit.challange.dto.ClienteRequest;
-import com.intuit.challange.dto.ClienteResponse;
-import com.intuit.challange.dto.EmailUpdateRequest;
+import com.intuit.challange.dto.*;
 import com.intuit.challange.service.abstraction.ClienteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,17 +44,17 @@ public class ClienteController {
     }
 
     @Operation(summary = "Listar clientes con paginación",
-            description = "Obtiene una lista paginada de todos los clientes. Permite configurar el número de página, tamaño y ordenamiento.")
+            description = "Obtiene una lista paginada de todos los clientes.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista paginada obtenida correctamente",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Page.class))),
+                            schema = @Schema(implementation = PagedResponse.class))),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor",
                     content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping
-    public ResponseEntity< Page <ClienteResponse> > listar(
-            @ParameterObject Pageable pageable) { // @ParameterObject ayuda a Swagger a mostrar los filtros
+    public ResponseEntity<PagedResponse<ClienteResponse>> listar(
+            @ParameterObject @PageableDefault(page = 0, size = 10, sort = "id") Pageable pageable) {
         return ResponseEntity.ok(service.listar(pageable));
     }
 

@@ -2,6 +2,7 @@ package com.intuit.challange.service;
 
 import com.intuit.challange.dto.ClienteRequest;
 import com.intuit.challange.dto.ClienteResponse;
+import com.intuit.challange.dto.PagedResponse;
 import com.intuit.challange.entity.Cliente;
 import com.intuit.challange.exception.ArgumentoDuplicadoException;
 import com.intuit.challange.exception.ClienteNotFoundException;
@@ -150,12 +151,33 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page <ClienteResponse> listar( Pageable pageable) {
-        log.debug("Listando clientes paginados: página {}, tamaño {}",
-                pageable.getPageNumber(), pageable.getPageSize());
+    public PagedResponse<ClienteResponse> listar(Pageable pageable) {
+        log.info("Solicitud de listado de clientes - Página: {}, Tamaño: {}, Orden: {}",
+                pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort());
 
-        return repository.findAll(pageable)
-                .map(clienteMapper::mapToResponse);
+        Page<Cliente> page = repository.findAll(pageable);
+
+        if (pageable.getPageNumber() >= page.getTotalPages() && page.getTotalElements() > 0) {
+            log.error("Se solicitó una página inexistente: {} de un total de {}",
+                    pageable.getPageNumber(), page.getTotalPages());
+        }
+
+        List<ClienteResponse> contenido = page.getContent().stream()
+                .map(clienteMapper::mapToResponse)
+                .toList();
+
+        log.info("Listado completado. Se encontraron {} elementos en esta página. Total global: {}",
+                contenido.size(), page.getTotalElements());
+
+        return PagedResponse.<ClienteResponse>builder()
+                .content(contenido)
+                .page(PagedResponse.PageMetadata.builder()
+                        .size(page.getSize())
+                        .totalElements(page.getTotalElements())
+                        .totalPages(page.getTotalPages())
+                        .number(page.getNumber())
+                        .build())
+                .build();
     }
 
 

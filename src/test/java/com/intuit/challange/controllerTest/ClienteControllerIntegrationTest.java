@@ -125,24 +125,50 @@ public class ClienteControllerIntegrationTest {
     @Test
     @DisplayName("GET - Debería listar clientes de forma paginada")
     void deberiaListarClientesPaginados() throws Exception {
-
-        // 1. Crear un cliente
         registrarCliente(clienteValido);
 
-        // 2. Solicitar página 0 con tamaño 10
         mockMvc.perform(get("/api/clientes")
                         .param("page", "0")
                         .param("size", "10")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                // En Page, los datos vienen dentro de "content"
+                // Verificamos el contenido
                 .andExpect(jsonPath("$.content", hasSize(1)))
                 .andExpect(jsonPath("$.content[0].nombre").value("Juan"))
-                // Metadata de paginación
+                .andExpect(jsonPath("$.content[0].apellido").value("Perez"))
+
+                // --- Validamos DTO PagedResponse ---
                 .andExpect(jsonPath("$.page.totalElements").value(1))
                 .andExpect(jsonPath("$.page.totalPages").value(1))
                 .andExpect(jsonPath("$.page.number").value(0))
                 .andExpect(jsonPath("$.page.size").value(10));
+    }
+
+    @Test
+    @DisplayName("GET - Debería retornar contenido vacío al solicitar una página inexistente")
+    void deberiaRetornarVacioAlSolicitarPaginaInexistente() throws Exception {
+        // 1. Aseguramos que haya al menos un cliente para que totalPages sea > 0
+        registrarCliente(clienteValido);
+
+        // 2. Pedimos la página 99 (que no existe)
+        mockMvc.perform(get("/api/clientes")
+                        .param("page", "99")
+                        .param("size", "10")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()) // En REST, pedir una página vacía sigue siendo 200 OK
+                .andExpect(jsonPath("$.content", hasSize(0))) // El contenido debe estar vacío
+                .andExpect(jsonPath("$.page.number").value(99))
+                .andExpect(jsonPath("$.page.totalElements").value(1)); // Pero el total global sigue siendo 1
+    }
+
+    @Test
+    @DisplayName("Cobertura - Lista vacía no dispara el error de página")
+    void deberiaCubrirIfFalsoPorListaVacia() throws Exception {
+        // No registramos nada, la BD está vacía
+        mockMvc.perform(get("/api/clientes")
+                        .param("page", "0")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     /* ===============================

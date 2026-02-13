@@ -2,6 +2,7 @@ package com.intuit.challange.service.abstraction;
 
 import com.intuit.challange.dto.ClienteRequest;
 import com.intuit.challange.dto.ClienteResponse;
+import com.intuit.challange.dto.PagedResponse;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -24,5 +25,5 @@ public interface ClienteService {
 
     List< ClienteResponse> buscarPorNombre ( String nombre );
 
-    Page< ClienteResponse> listar ( Pageable pageable );
+    PagedResponse <ClienteResponse> listar ( Pageable pageable );
 }

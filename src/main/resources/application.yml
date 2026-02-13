@@ -2,7 +2,8 @@ server:
   port: ${SERVER_PORT:8080}
 
 spring:
-
+  application:
+    name: challange
   config:
     import: optional:file:.env[.properties]
 
@@ -16,7 +17,6 @@ spring:
     hibernate:
       ddl-auto: ${HIBERNATE_DDL:update}
     defer-datasource-initialization: true # Espera a que Hibernate cree las tablas antes de correr el SQL
-
     show-sql: ${SHOW_SQL:true}
 
   sql:
