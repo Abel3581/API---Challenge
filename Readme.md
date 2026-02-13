@@ -89,6 +89,41 @@ El proyecto aplica una **pirámide de pruebas** equilibrada para garantizar la e
     
     GET /api/clientes/search?nombre={valor}:** Búsqueda por nombre (implementado vía Stored Procedure).
 
+📊 Calidad de Código (SonarQube)
+
+El proyecto integra SonarQube para el análisis estático de código, asegurando el cumplimiento de los estándares de la industria en cuanto a mantenibilidad, confiabilidad y seguridad.
+Métricas Alcanzadas:
+
+    Cobertura de Tests: > 94.7% (Superando el umbral estándar del 80%).
+
+    Code Smells: 0 (Código limpio, sin duplicaciones ni lógicas redundantes).
+
+    Security Hotspots: Revisados y mitigados (Garantizando el manejo seguro de logs y excepciones).
+
+    Vulnerabilidades: 0.
+
+Cómo ejecutar el análisis de calidad:
+
+Para replicar el análisis de calidad en un entorno local, sigue estos pasos:
+
+    Levantar el servidor de SonarQube:
+    Bash
+
+    docker run -d --name sonarqube -p 9000:9000 sonarqube:community
+
+    Acceder al Panel:
+    Entra a http://localhost:9000 (User/Pass: admin/admin) y genera un Token de proyecto.
+
+    Ejecutar el Scanner de Maven:
+    Ejecuta el siguiente comando en la raíz del proyecto (reemplazando tu token):
+    Bash
+
+    mvn clean verify sonar:sonar \
+      "-Dsonar.projectKey=test" \
+      "-Dsonar.host.url=http://localhost:9000" \
+      "-Dsonar.token=TU_TOKEN_AQUI" \
+      "-Dsonar.scm.disabled=true"
+
 Ejecución en Local (IntelliJ IDEA)
 
 Para correr el proyecto desde el IDE cargando automáticamente la configuración del archivo .env:

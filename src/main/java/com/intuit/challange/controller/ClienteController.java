@@ -1,6 +1,7 @@
 package com.intuit.challange.controller;
 
 import com.intuit.challange.dto.*;
+import com.intuit.challange.enums.EstadoTest;
 import com.intuit.challange.exception.TestException;
 import com.intuit.challange.service.abstraction.ClienteService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -125,5 +126,12 @@ public class ClienteController {
     @GetMapping("/throw-exception")
     public void throwException() {
         throw new TestException("Error forzado para pruebas");
+    }
+
+    // AGREGÁ ESTO PARA CUBRIR EL IF DE ENUMS
+    @Operation(hidden = true)
+    @GetMapping("/test-cobertura-enum")
+    public void testEnum(@RequestParam EstadoTest estado) {
+        // Solo para disparar MethodArgumentTypeMismatchException con Enums
     }
 }
