@@ -77,7 +77,7 @@ El proyecto aplica una **pirámide de pruebas** equilibrada para garantizar la e
 
 🔌 Endpoints Principales
 
-    GET /api/clientes: Lista todos los registros.
+    GET /api/clientes: Lista todos los registros paginados.
 
     POST /api/clientes: Crea un cliente (valida CUIT/Email duplicados).
 
