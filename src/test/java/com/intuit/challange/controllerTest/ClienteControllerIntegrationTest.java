@@ -1,5 +1,6 @@
 package com.intuit.challange.controllerTest;
 
+import com.intuit.challange.ChallangeApplication;
 import com.intuit.challange.dto.ClienteRequest;
 import com.intuit.challange.dto.ClienteResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -46,6 +48,13 @@ class ClienteControllerIntegrationTest {
                 .telefonoCelular("1165874210")
                 .email("juan@gmail.com")
                 .build();
+    }
+
+    @Test
+    void main() {
+        assertDoesNotThrow(() ->
+                ChallangeApplication.main(new String[]{})
+        );
     }
 
     /* ===============================
