@@ -49,7 +49,7 @@ SERVER_PORT=8080
 Para levantar la API junto con el contenedor de PostgreSQL, simplemente ejecutá:
 Bash
 
-docker-compose up -d
+docker-compose up -d o docker-compose up --build
 
 Detalles del despliegue:
 
