@@ -23,3 +23,6 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
     depends_on:
       - db
+    # --- AGREGAMOS ESTO PARA LOS LOGS ---
+    volumes:
+      - ./logs:/app/logs

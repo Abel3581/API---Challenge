@@ -39,11 +39,11 @@ spring:
       indent-output: true
 
 logging:
+  config: classpath:logback-spring.xml
   level:
     root: INFO
     com.intuit.challange: DEBUG
-    org.hibernate.SQL: DEBUG          # Muestra el SQL limpio
-    org.hibernate.type.descriptor.sql: TRACE # Muestra los parámetros que enviás al SQL
+    org.hibernate.SQL: DEBUG
 
 springdoc:
   swagger-ui:

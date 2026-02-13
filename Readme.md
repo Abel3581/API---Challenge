@@ -124,6 +124,16 @@ Para replicar el análisis de calidad en un entorno local, sigue estos pasos:
       "-Dsonar.token=TU_TOKEN_AQUI" \
       "-Dsonar.scm.disabled=true"
 
+🛠️ Registro y Auditoría de Errores
+
+Se implementó una estrategia de Logging Persistente utilizando Logback con las siguientes características:
+
+    Estrategia de Rotación: Los logs se almacenan en archivos físicos con rotación diaria y una retención de 30 días (RollingFileAppender).
+
+    Filtro de Criticidad: Se configuró un registro exclusivo para errores (errors.log) que captura únicamente eventos de nivel ERROR, facilitando la auditoría y el diagnóstico post-mortem.
+
+    Persistencia en Docker: Mediante volúmenes, los archivos de log sobreviven al ciclo de vida de los contenedores, garantizando que la información de fallos no se pierda ante reinicios del sistema.
+
 Ejecución en Local (IntelliJ IDEA)
 
 Para correr el proyecto desde el IDE cargando automáticamente la configuración del archivo .env:
