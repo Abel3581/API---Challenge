@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles ("test")
 @Transactional
-public class ClienteControllerIntegrationTest {
+class ClienteControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -155,10 +155,10 @@ public class ClienteControllerIntegrationTest {
                         .param("page", "99")
                         .param("size", "10")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()) // En REST, pedir una página vacía sigue siendo 200 OK
-                .andExpect(jsonPath("$.content", hasSize(0))) // El contenido debe estar vacío
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(0)))
                 .andExpect(jsonPath("$.page.number").value(99))
-                .andExpect(jsonPath("$.page.totalElements").value(1)); // Pero el total global sigue siendo 1
+                .andExpect(jsonPath("$.page.totalElements").value(1));
     }
 
     @Test
@@ -297,7 +297,7 @@ public class ClienteControllerIntegrationTest {
     @DisplayName("PUT - Debería fallar si el nuevo CUIT solicitado ya está siendo usado por otro registro")
     void actualizar_CuitNuevo_YaExistente() throws Exception {
         // 4. Creamos Cliente A y Cliente B.
-        registrarCliente(clienteValido); // CUIT: 20301234567
+        registrarCliente(clienteValido);
 
         ClienteRequest reqB = crearRequest("Maria", "27-44444444-2", "maria@test.com");
         ClienteResponse resB = registrarCliente(reqB);
@@ -409,7 +409,7 @@ public class ClienteControllerIntegrationTest {
     @Test
     @DisplayName("DELETE - Debería retornar 404 al intentar eliminar un ID que no existe")
     void noDebeEliminarClienteInexistente() throws Exception {
-        Long idInexistente = 999L; // Un ID que seguro no existe
+        long idInexistente = 999L; // Un ID que seguro no existe
 
         mockMvc.perform(delete("/api/clientes/" + idInexistente))
                 .andExpect(status().isNotFound())
@@ -425,7 +425,6 @@ public class ClienteControllerIntegrationTest {
         mockMvc.perform(get("/api/clientes/{id}", "no-long"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400));
-               // .andExpect(jsonPath("$.error").value("Bad Request"));
     }
 
     /* ===============================
@@ -465,7 +464,7 @@ public class ClienteControllerIntegrationTest {
 
         mockMvc.perform(patch("/api/clientes/" + creado.getId() + "/email")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))) // Serializa como {"nuevoEmail":"..."}
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("nuevo_email@test.com"));
     }
@@ -473,7 +472,7 @@ public class ClienteControllerIntegrationTest {
     @Test
     @DisplayName("PATCH Email - Debería retornar 400 cuando el email ya pertenece a otro cliente")
     void actualizarEmail_DeberiaRetornarErrorPorDuplicado() throws Exception {
-        registrarCliente(clienteValido); // Cliente A: juan@gmail.com
+        registrarCliente(clienteValido);
 
         ClienteRequest reqB = crearRequest("Maria", "27-44444444-2", "maria@test.com");
         ClienteResponse resB = registrarCliente(reqB);

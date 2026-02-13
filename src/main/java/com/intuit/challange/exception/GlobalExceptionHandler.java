@@ -9,8 +9,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,9 +63,8 @@ public class GlobalExceptionHandler {
                     "' no es válido para el parámetro '" + ex.getName() +
                     "'. Valores permitidos: " +
                     String.join(", ",
-                            ex.getRequiredType()
-                                    .getEnumConstants()
-                                    .toString()
+                            Arrays.toString(ex.getRequiredType()
+                                    .getEnumConstants())
                     );
         } else {
             mensaje = "Parámetro inválido: " + ex.getName();
@@ -132,31 +131,11 @@ public class GlobalExceptionHandler {
                 null
         );
 
-        ex.printStackTrace(); // Solo en dev
+        ex.printStackTrace();
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(response);
     }
-/*
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiErrorResponse> handleIllegalArgument(
-            IllegalArgumentException ex,
-            HttpServletRequest request
-    ) {
-
-        ApiErrorResponse response = new ApiErrorResponse(
-                400,
-                "Bad Request",
-                ex.getMessage(),
-                request.getRequestURI(),
-                LocalDateTime.now(),
-                null
-        );
-
-        return ResponseEntity.badRequest().body(response);
-    }
-
- */
 
     @ExceptionHandler( ArgumentoDuplicadoException.class)
     public ResponseEntity<ApiErrorResponse> handleArgumentoDuplicadoException(
