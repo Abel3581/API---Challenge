@@ -71,13 +71,12 @@ docker-compose up --build -d
 
 🔌 Endpoints Principales
 
-Método	Endpoint	Descripción
-GET	/api/clientes	Listado paginado de clientes.
-GET	/api/clientes/search?nombre={v}	Búsqueda avanzada vía Stored Procedure.
-POST	/api/clientes	Registro (Valida CUIT/Email únicos).
-PUT	/api/clientes/{id}	Actualización completa de datos.
-PATCH	/api/clientes/{id}/email	Actualización específica de contacto.
-DELETE	/api/clientes/{id}	Borrado físico del registro.
+    GET	/api/clientes	Listado paginado de clientes.
+    GET	/api/clientes/search?nombre={v}	Búsqueda avanzada vía Stored Procedure.
+    POST	/api/clientes	Registro (Valida CUIT/Email únicos).
+    PUT	/api/clientes/{id}	Actualización completa de datos.
+    PATCH	/api/clientes/{id}/email	Actualización específica de contacto.
+    DELETE	/api/clientes/{id}	Borrado físico del registro.
 
 📈 Auditoría y Logs
 
