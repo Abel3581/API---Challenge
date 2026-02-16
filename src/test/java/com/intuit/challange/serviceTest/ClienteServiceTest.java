@@ -9,6 +9,7 @@ import com.intuit.challange.exception.ClienteNotFoundException;
 import com.intuit.challange.mapper.ClienteMapper;
 import com.intuit.challange.repository.ClienteRepository;
 import com.intuit.challange.service.ClienteServiceImpl;
+import com.intuit.challange.service.validator.ClienteValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +42,9 @@ class ClienteServiceTest {
     @InjectMocks
     private ClienteServiceImpl service;
 
+    @Mock
+    private ClienteValidator clienteValidator;
+
     // =====================================================
     // CREATE
     // =====================================================
@@ -48,27 +52,50 @@ class ClienteServiceTest {
     @Test
     @DisplayName("crear - debe guardar correctamente cuando no hay duplicados")
     void crear_ok() {
-
+        // GIVEN
         ClienteRequest request = this.crearRequest();
         Cliente entity = new Cliente();
         Cliente guardado = new Cliente();
         guardado.setId(1L);
-        ClienteResponse response = new ClienteResponse();
 
-        when(repository.existsByCuit(request.getCuit())).thenReturn(false);
-        when(repository.existsByEmail(request.getEmail())).thenReturn(false);
+        ClienteResponse response = new ClienteResponse();
+        response.setNombre("Juan");
+
+        // No necesitamos mockear el repository.exists porque el Service ya no lo llama
+        // Solo verificamos que el mapper y el save funcionen
         when(clienteMapper.mapToEntity(request)).thenReturn(entity);
         when(repository.save(entity)).thenReturn(guardado);
         when(clienteMapper.mapToResponse(guardado)).thenReturn(response);
 
+        // WHEN
         ClienteResponse resultado = service.crear(request);
-        response.setNombre("Juan");
 
+        // THEN
         assertNotNull(resultado);
         assertEquals("Juan", resultado.getNombre());
+
+        // Verificamos que se llamó al validador una vez
+        verify(clienteValidator).validarParaCreacion(request);
         verify(repository).save(entity);
     }
 
+    @Test
+    @DisplayName("crear - debe lanzar excepción si el validador falla")
+    void crear_error_validacion() {
+        // GIVEN
+        ClienteRequest request = crearRequest();
+
+        // Simulamos que el VALIDADOR lanza la excepción
+        doThrow(new ArgumentoDuplicadoException("Ya existe un cliente con ese CUIT"))
+                .when(clienteValidator).validarParaCreacion(request);
+
+        // WHEN & THEN
+        assertThrows(ArgumentoDuplicadoException.class, () -> service.crear(request));
+
+        // Verificamos que el proceso se detuvo y NUNCA se llamó al save
+        verify(repository, never()).save(any());
+    }
+/*
     @Test
     @DisplayName("crear - debe lanzar excepción si CUIT duplicado")
     void crear_cuitDuplicado() {
@@ -93,6 +120,8 @@ class ClienteServiceTest {
         assertThrows(ArgumentoDuplicadoException.class,
                 () -> service.crear(request));
     }
+
+ */
 
     // =====================================================
     // BUSCAR POR ID
