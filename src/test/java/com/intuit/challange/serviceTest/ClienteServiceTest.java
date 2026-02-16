@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -315,24 +316,33 @@ class ClienteServiceTest {
     // =====================================================
 
     @Test
-    @DisplayName("eliminar - debe borrar cuando existe")
-    void eliminar_ok() {
+    @DisplayName("eliminar - debe borrar si existe")
+    void eliminar_success() {
+        // GIVEN
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+        when(repository.findById(1L)).thenReturn(Optional.of(cliente));
 
-        when(repository.existsById(1L)).thenReturn(true);
-
+        // WHEN
         service.eliminar(1L);
 
-        verify(repository).deleteById(1L);
+        // THEN
+        verify(repository, times(1)).delete(cliente);
     }
 
     @Test
     @DisplayName("eliminar - debe lanzar excepción si no existe")
     void eliminar_notFound() {
+        // GIVEN: El repositorio ahora usa findById, por lo que mockeamos un Optional vacío
+        when(repository.findById(1L)).thenReturn(Optional.empty());
 
-        when(repository.existsById(1L)).thenReturn(false);
-
+        // WHEN & THEN
         assertThrows(ClienteNotFoundException.class,
                 () -> service.eliminar(1L));
+
+        // Verificación extra (Nivel Senior):
+        // Aseguramos que NUNCA se intentó borrar si no se encontró el cliente
+        verify(repository, never()).delete(any());
     }
 
     // =====================================================
@@ -416,25 +426,82 @@ class ClienteServiceTest {
     // =====================================================
     // STORED PROCEDURE
     // =====================================================
-
     @Test
-    @DisplayName("buscarPorNombre - debe mapear resultados del SP")
+    @DisplayName("buscarPorNombre - debe limpiar el nombre y retornar lista de resultados")
     void buscarPorNombre_ok() {
+        // GIVEN: Un nombre con espacios para probar el trim()
+        String nombreSucio = "  Juan  ";
+        String nombreLimpio = "Juan";
 
-        Cliente cliente = Cliente.builder().id(1L).nombre("Juan").build();
-        ClienteResponse response = new ClienteResponse();
-        response.setNombre("Juan");
+        Cliente cliente = Cliente.builder().id(1L).nombre(nombreLimpio).build();
+        ClienteResponse response = new ClienteResponse(); // O usa tu constructor/builder
+        // Si usas records o builders, asegúrate de setear el nombre aquí
 
-        when(repository.searchByNombreProcedure("Juan"))
+        when(repository.searchByNombreProcedure(nombreLimpio))
                 .thenReturn(List.of(cliente));
 
         when(clienteMapper.mapToResponse(cliente))
                 .thenReturn(response);
 
-        List<ClienteResponse> resultado = service.buscarPorNombre("Juan");
+        // WHEN
+        List<ClienteResponse> resultado = service.buscarPorNombre(nombreSucio);
 
+        // THEN
+        assertNotNull(resultado);
         assertEquals(1, resultado.size());
-        verify(repository).searchByNombreProcedure("Juan");
+
+        // Verificamos que el service hizo el trim() antes de llamar al repositorio
+        verify(repository).searchByNombreProcedure(nombreLimpio);
+        verify(repository, times(1)).searchByNombreProcedure(anyString());
+    }
+
+    @Test
+    @DisplayName("buscarPorNombre - debe retornar lista vacía si el nombre es nulo o vacío")
+    void buscarPorNombre_empty() {
+        // Probamos el comportamiento "Fail-Fast" sin tocar la DB
+        List<ClienteResponse> resultadoNull = service.buscarPorNombre(null);
+        List<ClienteResponse> resultadoVacio = service.buscarPorNombre("   ");
+
+        assertTrue(resultadoNull.isEmpty());
+        assertTrue(resultadoVacio.isEmpty());
+
+        // Verificamos que NUNCA se llamó al repositorio (ahorro de recursos)
+        verify(repository, never()).searchByNombreProcedure(anyString());
+    }
+
+    @Test
+    @DisplayName("buscarPorNombre - Debe retornar lista vacía cuando el SP no encuentra nada")
+    void buscarPorNombre_cuandoNoHayResultados() {
+        // GIVEN
+        String nombre = "Inexistente";
+        // Simulamos que el repositorio devuelve una lista vacía (no null)
+        when(repository.searchByNombreProcedure(nombre)).thenReturn(Collections.emptyList());
+
+        // WHEN
+        List<ClienteResponse> resultado = service.buscarPorNombre(nombre);
+
+        // THEN
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+        // Verificamos que se ejecutó la lógica hasta el log de "No se encontraron clientes"
+        verify(repository).searchByNombreProcedure(nombre);
+    }
+
+    @Test
+    @DisplayName("buscarPorNombre - Debe manejar correctamente si el repositorio devuelve null")
+    void buscarPorNombre_cuandoRepositorioDevuelveNull() {
+        // GIVEN
+        String nombre = "ErrorDB";
+        // Forzamos explícitamente que el repositorio devuelva null
+        when(repository.searchByNombreProcedure(nombre)).thenReturn(null);
+
+        // WHEN
+        List<ClienteResponse> resultado = service.buscarPorNombre(nombre);
+
+        // THEN
+        assertNotNull(resultado); // El service no debe devolver null, sino Collections.emptyList()
+        assertTrue(resultado.isEmpty());
+        verify(repository).searchByNombreProcedure(nombre);
     }
 
     // =====================================================
@@ -452,36 +519,5 @@ class ClienteServiceTest {
                 .fechaNacimiento(LocalDate.of(1990, 1, 1))
                 .build();
     }
-    /**
-     * Se utiliza un Test Unitario para este método debido a que invoca un Stored Procedure
-     * nativo de PostgreSQL. Para mantener la suite de tests independiente del motor de DB
-     * (H2 en memoria para tests), mockeamos la respuesta del repository validando
-     * exclusivamente la lógica del Service y la transformación de la respuesta.
-
-    @Test
-    @DisplayName ("Debe llamar al repository y mapear los resultados correctamente")
-    void buscarPorNombre_DebeRetornarListaDeResponses() {
-        // GIVEN
-        String nombreABuscar = "Juan";
-        Cliente clienteMock = Cliente.builder().id(1L).nombre("Juan").build();
-        ClienteResponse responseMock = new ClienteResponse();
-        responseMock.setNombre("Juan");
-
-        // Simulamos que el Repository devuelve el cliente al llamar al SP
-        when(repository.searchByNombreProcedure(nombreABuscar)).thenReturn(List.of(clienteMock));
-        when(clienteMapper.mapToResponse(any(Cliente.class))).thenReturn(responseMock);
-
-        // WHEN
-        List<ClienteResponse> resultado = service.buscarPorNombre(nombreABuscar);
-
-        // THEN
-        assertNotNull(resultado);
-        assertEquals(1, resultado.size());
-        assertEquals("Juan", resultado.get(0).getNombre());
-
-        // Verificamos que se llamó al método exacto del SP
-        verify(repository, times(1)).searchByNombreProcedure(nombreABuscar);
-    }
-  */
 
 }

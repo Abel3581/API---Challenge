@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -117,33 +119,45 @@ public class ClienteServiceImpl implements ClienteService {
      }
 
     @Override
+    @Transactional
     public void eliminar(Long id) {
+        log.info("Iniciando proceso de eliminación para el cliente ID: {}", id);
 
-        log.info("Eliminando cliente con ID: {}", id);
-
-        if (!repository.existsById(id)) {
-
-            log.error("Intento de eliminar cliente inexistente ID: {}", id);
-
-            throw new ClienteNotFoundException(id);
-        }
-
-        repository.deleteById(id);
-
-        log.info("Cliente eliminado correctamente. ID: {}", id);
+        // Buscamos y ejecutamos la acción en una sola cadena lógica
+        repository.findById(id)
+                .ifPresentOrElse(
+                        cliente -> {
+                            repository.delete(cliente);
+                            log.info("Cliente eliminado exitosamente. ID: {}", id);
+                        },
+                        () -> {
+                            log.error("Fallo al eliminar: Cliente no encontrado con ID: {}", id);
+                            throw new ClienteNotFoundException(id);
+                        }
+                );
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<ClienteResponse> buscarPorNombre(String nombre) {
-        log.info("Ejecutando Stored Procedure para buscar: {}", nombre);
+        // 1. Validación Fail-Fast (Evita llamadas innecesarias a la DB)
+        if (nombre == null || nombre.trim().isEmpty()) {
+            log.warn("Búsqueda abortada: El parámetro 'nombre' está vacío");
+            return Collections.emptyList();
+        }
 
-        /* * Nota técnica: Se retorna List para priorizar la simplicidad del Stored Procedure.
-         * En un entorno con grandes volúmenes de datos, se recomienda evolucionar a
-         * paginación nativa (LIMIT/OFFSET) para optimizar el consumo de memoria.
-         */
-        List<Cliente> clientes = repository.searchByNombreProcedure(nombre);
+        String nombreBusqueda = nombre.trim();
+        log.info("Ejecutando búsqueda por nombre vía Stored Procedure: '{}'", nombreBusqueda);
 
+        // 2. Ejecución y procesamiento defensivo
+        List<Cliente> clientes = repository.searchByNombreProcedure(nombreBusqueda);
+
+        if (clientes == null || clientes.isEmpty()) {
+            log.info("No se encontraron clientes que coincidan con: '{}'", nombreBusqueda);
+            return Collections.emptyList();
+        }
+
+        // 3. Transformación eficiente
         return clientes.stream()
                 .map(clienteMapper::mapToResponse)
                 .toList();
