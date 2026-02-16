@@ -10,4 +10,9 @@ class ChallangeApplicationTests {
 	void contextLoads() {
 	}
 
+	@Test
+	void main() {
+		ChallangeApplication.main(new String[]{});
+	}
+
 }

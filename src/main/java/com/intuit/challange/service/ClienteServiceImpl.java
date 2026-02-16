@@ -24,7 +24,7 @@ public class ClienteServiceImpl implements ClienteService {
     private final ClienteRepository repository;
     private final ClienteMapper clienteMapper;
 
-
+/*
     @Override
     public ClienteResponse crear(ClienteRequest request) {
 
@@ -48,6 +48,32 @@ public class ClienteServiceImpl implements ClienteService {
         log.info("Cliente creado exitosamente con ID: {}", guardado.getId());
 
         return clienteMapper.mapToResponse(guardado);
+    }
+
+ */
+    @Override
+    @Transactional
+    public ClienteResponse crear(ClienteRequest request) {
+        log.info("Iniciando creación de cliente. CUIT: {}", request.getCuit());
+
+        validarUnicidad(request);
+
+        Cliente cliente = clienteMapper.mapToEntity(request);
+        Cliente guardado = repository.save(cliente);
+
+        log.info("Cliente creado exitosamente con ID: {}", guardado.getId());
+        return clienteMapper.mapToResponse(guardado);
+    }
+
+    private void validarUnicidad(ClienteRequest request) {
+        if (repository.existsByCuit(request.getCuit())) {
+            log.error("Intento de creación con CUIT duplicado: {}", request.getCuit());
+            throw new ArgumentoDuplicadoException("Ya existe un cliente con ese CUIT");
+        }
+        if (repository.existsByEmail(request.getEmail())) {
+            log.error("Intento de creación con email duplicado: {}", request.getEmail());
+            throw new ArgumentoDuplicadoException("Ya existe un cliente con ese email");
+        }
     }
 
     @Transactional(readOnly = true)

@@ -82,7 +82,7 @@ public class Cliente {
        =============================== */
 
     @PrePersist
-    protected void onCreate() {
+    public void onCreate () {
         this.fechaCreacion = LocalDateTime.now();
         this.fechaModificacion = LocalDateTime.now();
     }
