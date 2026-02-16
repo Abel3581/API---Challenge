@@ -1373,3 +1373,15 @@ Identify and stop the process that's listening on port 8080 or configure this ap
 2026-02-16 14:12:52 [main] ERROR c.i.c.service.ClienteServiceImpl - Se solicitó una página inexistente: 99 de un total de 1
 2026-02-16 14:12:52 [main] ERROR c.i.c.service.ClienteServiceImpl - Cliente no encontrado con ID: 1
 2026-02-16 14:12:52 [main] ERROR c.i.c.service.ClienteServiceImpl - Intento de creación con CUIT duplicado: 20-30123456-7
+2026-02-16 17:56:42 [main] ERROR c.i.c.service.ClienteServiceImpl - Intento de creación con email duplicado: juan@test.com
+2026-02-16 17:56:42 [main] ERROR c.i.c.service.ClienteServiceImpl - Fallo al eliminar: Cliente no encontrado con ID: 1
+2026-02-16 17:56:42 [main] ERROR c.i.c.service.ClienteServiceImpl - Email duplicado detectado: duplicado@mail.com
+2026-02-16 17:56:42 [main] ERROR c.i.c.service.ClienteServiceImpl - Se solicitó una página inexistente: 99 de un total de 1
+2026-02-16 17:56:42 [main] ERROR c.i.c.service.ClienteServiceImpl - Cliente no encontrado con ID: 1
+2026-02-16 17:56:42 [main] ERROR c.i.c.service.ClienteServiceImpl - Intento de creación con CUIT duplicado: 20-30123456-7
+2026-02-16 17:57:08 [main] ERROR c.i.c.service.ClienteServiceImpl - Intento de creación con email duplicado: juan@test.com
+2026-02-16 17:57:08 [main] ERROR c.i.c.service.ClienteServiceImpl - Fallo al eliminar: Cliente no encontrado con ID: 1
+2026-02-16 17:57:08 [main] ERROR c.i.c.service.ClienteServiceImpl - Email duplicado detectado: duplicado@mail.com
+2026-02-16 17:57:08 [main] ERROR c.i.c.service.ClienteServiceImpl - Se solicitó una página inexistente: 99 de un total de 1
+2026-02-16 17:57:08 [main] ERROR c.i.c.service.ClienteServiceImpl - Cliente no encontrado con ID: 1
+2026-02-16 17:57:08 [main] ERROR c.i.c.service.ClienteServiceImpl - Intento de creación con CUIT duplicado: 20-30123456-7

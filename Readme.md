@@ -58,7 +58,7 @@ Implementación de @RestControllerAdvice que estandariza las respuestas de error
 🐳 Despliegue Rápido (Docker)
 
     Configurar Variables: Crea un archivo .env en la raíz con las credenciales de base de datos.
-
+    En challange.env esta el archivo de configuracion de ejemplo.
     Levantar Entorno:
 
 Bash

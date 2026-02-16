@@ -76,7 +76,8 @@ class ClienteTest {
         cliente.setFechaModificacion(pasado);
 
         // WHEN
-        cliente.onUpdate(); // Invocamos manualmente el método @PreUpdate
+        // Invocamos manualmente el método @PreUpdate
+        cliente.onUpdate();
 
         // THEN
         // La fecha de creación debe permanecer intacta (el pasado)

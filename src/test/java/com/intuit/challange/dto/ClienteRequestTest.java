@@ -27,7 +27,7 @@ class ClienteRequestTest {
     void cuandoCuitEsInvalido_entoncesHayViolaciones() {
         ClienteRequest request = ClienteRequest.builder()
                 .nombre("Juan").apellido("Perez").razonSocial("S.A.")
-                .cuit("12345") // Formato incorrecto
+                .cuit("12345")
                 .email("juan@test.com").fechaNacimiento(LocalDate.of(1990, 1, 1))
                 .telefonoCelular("12345678")
                 .build();

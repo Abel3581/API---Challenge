@@ -49,7 +49,7 @@ class ClienteServiceTest {
     @DisplayName("crear - debe guardar correctamente cuando no hay duplicados")
     void crear_ok() {
 
-        ClienteRequest request = crearRequest();
+        ClienteRequest request = this.crearRequest();
         Cliente entity = new Cliente();
         Cliente guardado = new Cliente();
         guardado.setId(1L);
@@ -62,8 +62,10 @@ class ClienteServiceTest {
         when(clienteMapper.mapToResponse(guardado)).thenReturn(response);
 
         ClienteResponse resultado = service.crear(request);
+        response.setNombre("Juan");
 
         assertNotNull(resultado);
+        assertEquals("Juan", resultado.getNombre());
         verify(repository).save(entity);
     }
 
@@ -192,7 +194,7 @@ class ClienteServiceTest {
 
         service.actualizar(1L, request);
 
-        // 🔥 Esto es CLAVE para branch coverage
+        //Esto es CLAVE para branch coverage
         verify(repository, never()).existsByEmail(any());
     }
 
@@ -434,8 +436,7 @@ class ClienteServiceTest {
         String nombreLimpio = "Juan";
 
         Cliente cliente = Cliente.builder().id(1L).nombre(nombreLimpio).build();
-        ClienteResponse response = new ClienteResponse(); // O usa tu constructor/builder
-        // Si usas records o builders, asegúrate de setear el nombre aquí
+        ClienteResponse response = new ClienteResponse();
 
         when(repository.searchByNombreProcedure(nombreLimpio))
                 .thenReturn(List.of(cliente));
@@ -499,7 +500,8 @@ class ClienteServiceTest {
         List<ClienteResponse> resultado = service.buscarPorNombre(nombre);
 
         // THEN
-        assertNotNull(resultado); // El service no debe devolver null, sino Collections.emptyList()
+        // El service no debe devolver null, sino Collections.emptyList()
+        assertNotNull(resultado);
         assertTrue(resultado.isEmpty());
         verify(repository).searchByNombreProcedure(nombre);
     }
