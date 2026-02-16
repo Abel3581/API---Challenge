@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PagedResponseTest {
+class PagedResponseTest {
 
     @Test
     @DisplayName("Estructura - Verificación de contenido y metadatos")

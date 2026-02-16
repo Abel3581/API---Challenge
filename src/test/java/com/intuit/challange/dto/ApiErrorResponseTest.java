@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ApiErrorResponseTest {
+class ApiErrorResponseTest {
 
     @Test
     @DisplayName("Estructura - Verificación de campos de error")

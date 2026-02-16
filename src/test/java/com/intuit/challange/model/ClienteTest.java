@@ -10,22 +10,10 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ClienteTest {
-/*
+
     @Test
-    void onUpdate_deberiaActualizarFechaModificacion() {
-
-        Cliente cliente = new Cliente();
-        assertNull(cliente.getFechaModificacion());
-
-        cliente.onUpdate();
-
-        assertNotNull(cliente.getFechaModificacion());
-    }
-
- */
-@Test
-@DisplayName("Lombok - Debe verificar que Builder, Getters y Setters funcionen")
-void testLombokMethods() {
+    @DisplayName("Lombok - Debe verificar que Builder, Getters y Setters funcionen")
+    void testLombokMethods() {
     // GIVEN
     LocalDate fechaNac = LocalDate.of(1990, 5, 10);
 
@@ -76,22 +64,29 @@ void testLombokMethods() {
     }
 
     @Test
-    @DisplayName ("JPA Lifecycle - onUpdate debe actualizar solo la fecha de modificación")
+    @DisplayName("JPA Lifecycle - onUpdate debe actualizar solo la fecha de modificación")
     void testOnUpdate() {
         // GIVEN
         Cliente cliente = new Cliente();
-        cliente.onCreate();
-        LocalDateTime fechaCreacionOriginal = cliente.getFechaCreacion();
 
-        // Simulamos un pequeño retraso
-        try { Thread.sleep(10); } catch (InterruptedException e) { e.printStackTrace(); }
+        // Seteamos una fecha de creación en el pasado manualmente
+        // para asegurar la diferencia sin usar Thread.sleep()
+        LocalDateTime pasado = LocalDateTime.now().minusDays(1);
+        cliente.setFechaCreacion(pasado);
+        cliente.setFechaModificacion(pasado);
 
         // WHEN
         cliente.onUpdate(); // Invocamos manualmente el método @PreUpdate
 
         // THEN
-        assertEquals(fechaCreacionOriginal, cliente.getFechaCreacion()); // La creación no cambia
-        assertTrue(cliente.getFechaModificacion().isAfter(fechaCreacionOriginal)); // La modificación es nueva
+        // La fecha de creación debe permanecer intacta (el pasado)
+        assertEquals(pasado, cliente.getFechaCreacion());
+
+        // La fecha de modificación debe ser ahora (mayor al pasado)
+        assertTrue(cliente.getFechaModificacion().isAfter(pasado),
+                "La fecha de modificación debería ser posterior a la de creación");
+
+        assertNotNull(cliente.getFechaModificacion());
     }
 }
 

@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -43,7 +44,7 @@ class ClienteControllerTest {
 
         ResponseEntity <ClienteResponse> result = controller.crear(request);
 
-        assertEquals(201, result.getStatusCodeValue());
+        assertEquals(HttpStatus.CREATED, result.getStatusCode());
         assertEquals(response, result.getBody());
     }
 
@@ -61,7 +62,7 @@ class ClienteControllerTest {
 
         ResponseEntity<PagedResponse<ClienteResponse>> result = controller.listar(pageable);
 
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(paged, result.getBody());
     }
 
@@ -78,7 +79,7 @@ class ClienteControllerTest {
 
         ResponseEntity<ClienteResponse> result = controller.buscarPorId(1L);
 
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(response, result.getBody());
     }
 
@@ -96,7 +97,7 @@ class ClienteControllerTest {
 
         ResponseEntity<ClienteResponse> result = controller.actualizar(1L, request);
 
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(response, result.getBody());
     }
 
@@ -114,7 +115,7 @@ class ClienteControllerTest {
 
         ResponseEntity<ClienteResponse> result = controller.actualizarEmail(1L, request);
 
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(response, result.getBody());
     }
 
@@ -127,7 +128,7 @@ class ClienteControllerTest {
 
         ResponseEntity<Void> result = controller.eliminar(1L);
 
-        assertEquals(204, result.getStatusCodeValue());
+        assertEquals(HttpStatus.NO_CONTENT, result.getStatusCode());
         verify(service).eliminar(1L);
     }
 
@@ -145,7 +146,7 @@ class ClienteControllerTest {
         ResponseEntity<List<ClienteResponse>> result =
                 controller.buscarPorNombre("Juan");
 
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(lista, result.getBody());
     }
 

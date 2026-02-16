@@ -109,16 +109,24 @@ class GlobalExceptionHandlerTest {
     }
 
     /* ========================================================================
-       CONTROLADOR DE PRUEBA: Simula los escenarios que disparan las excepciones
-       ======================================================================== */
+        CONTROLADOR DE PRUEBA (INNER CLASS)
+        Este controlador existe únicamente para disparar las excepciones que el
+        GlobalExceptionHandler debe capturar, permitiendo testear la respuesta JSON.
+        ======================================================================== */
     @RestController
     static class TestController {
 
         @PostMapping("/test/validation")
-        public void throwValidation(@Valid @RequestBody ClienteRequest request) {}
+        public void throwValidation(@Valid @RequestBody ClienteRequest request) {
+            // Método vacío intencionalmente: el error es disparado por @Valid
+            // antes de entrar al cuerpo del método.
+        }
 
         @GetMapping("/test/type-mismatch/{id}")
-        public void throwTypeMismatch(@PathVariable Long id) {}
+        public void throwTypeMismatch(@PathVariable Long id) {
+            // Método vacío intencionalmente: el error de tipo (TypeMismatch)
+            // ocurre durante el binding del @PathVariable por Spring.
+        }
 
         @GetMapping("/test/not-found")
         public void throwNotFound() { throw new ClienteNotFoundException("Cliente no encontrado"); }

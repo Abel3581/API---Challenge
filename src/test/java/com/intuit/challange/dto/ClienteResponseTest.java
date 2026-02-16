@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ClienteResponseTest {
+class ClienteResponseTest {
 
     @Test
     @DisplayName ("Lombok - Verificación de integridad de datos y Builder")

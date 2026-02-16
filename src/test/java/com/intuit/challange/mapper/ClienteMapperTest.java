@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ClienteMapperTest {
+class ClienteMapperTest {
 
     private ClienteMapper mapper;
 
