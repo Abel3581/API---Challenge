@@ -1,20 +1,2 @@
-spring:
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: sa
 
-  sql:
-    init:
-      mode: never # Esto le dice: "En tests, no toques los archivos .sql"
-
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: create-drop
-
-  h2:
-    console:
-      enabled: true
 

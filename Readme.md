@@ -1,167 +1,88 @@
-🚀 Cliente Management API - Challenge
-
-Esta es una API REST para la gestión de clientes desarrollada en Java con Spring Boot 3. El proyecto implementa un CRUD completo con validaciones de negocio avanzadas y está preparado para desplegarse mediante Docker.
-🛠️ Tecnologías Usadas
-
-    Java 17 & Spring Boot 3.x
-
-    Spring Data JPA: Persistencia de datos.
-
-    PostgreSQL 15: Base de datos relacional para producción/desarrollo.
-
-    H2 Database: Base de datos en memoria para ejecución de tests (rápida e independiente).
-
-    Mappers: Mapeo de Entidades a DTOs Manualmente.
-
-    Lombok: Reducción de código repetitivo.
-
-    JUnit 5 & MockMvc: Pruebas de integración con cobertura del 100% en lógica crítica.
-
-    Docker & Docker Compose: Contenedorización de la app y la base de datos.
+## CHALLENGE Intuit/Yappa
 
 
-📋 Variables de Entorno (.env)
-
-El proyecto utiliza un archivo .env para configurar la conexión a la base de datos y el servidor. El archivo docker-compose.yml carga automáticamente estos valores.
-Ini, TOML
-
-# DATABASE CONFIG
-### ✅ Configuralos en el archivo .env
-DB_HOST=localhost
-
-DB_PORT=5432
-
-DB_NAME={nombreBd}
-
-DB_USERNAME={tuUsernameBd}
-
-DB_PASSWORD={tuPassword}
-
-# JPA / HIBERNATE
-HIBERNATE_DDL=update
-SHOW_SQL=true
-
-# SERVER
-SERVER_PORT=8080
-
-🐳 Despliegue con Docker Compose
-
-Para levantar la API junto con el contenedor de PostgreSQL, simplemente ejecutá:
-Bash
-
-docker-compose up -d o docker-compose up --build
-
-Detalles del despliegue:
-
-    API: Disponible en http://localhost:8080 (o el puerto configurado en SERVER_PORT).
-
-    PostgreSQL: Corre internamente en el puerto 5432, pero se expone al host según DB_PORT.
-
-    Persistencia: La base de datos se crea automáticamente con el nombre definido en DB_NAME.
-
-## 🔍 Búsqueda Avanzada (Stored Procedure)
-
-Para cumplir con los requerimientos técnicos de performance y lógica de base de datos, la funcionalidad de **Búsqueda por Nombre** se implementó mediante un **Stored Procedure nativo en PostgreSQL**.
-
-* **Lógica:** Realiza una búsqueda por caracteres centrales utilizando el operador `ILIKE` para asegurar que la búsqueda sea insensible a mayúsculas y minúsculas.
-* **Script de Carga:** El procedimiento se crea automáticamente al iniciar la aplicación mediante el script `schema-postgre.sql`, el cual incluye una lógica "inteligente" de inicialización (`CREATE TABLE IF NOT EXISTS` e `INSERT ... ON CONFLICT`), garantizando que los datos de prueba se carguen solo si la base de datos está vacía.
-
-## 🧪 Estrategia de Testing
-
-El proyecto aplica una **pirámide de pruebas** equilibrada para garantizar la estabilidad:
-
-1.  **Tests de Integración (MockMvc + H2):** Se utilizan para validar el flujo completo del CRUD, el manejo de transacciones y la respuesta de los Endpoints. Se configuran con una base de datos **H2 en memoria** para asegurar portabilidad y rapidez.
-2.  **Tests Unitarios (Mockito):** Se aplican específicamente para la lógica del **Stored Procedure**.
-
-> **Nota técnica sobre el Testing del Procedure:** > Dado que el Stored Procedure utiliza sintaxis nativa de PostgreSQL (`plpgsql`), la cual no es compatible con H2, se optó por un **Test Unitario en la capa de Servicio**. Esto permite validar que la aplicación interactúa correctamente con el contrato del Repository y procesa los resultados adecuadamente, manteniendo la suite de tests independiente del motor de base de datos de producción.
-
-🔌 Endpoints Principales
-
-    GET /api/clientes: Lista todos los registros paginados.
-
-    POST /api/clientes: Crea un cliente (valida CUIT/Email duplicados).
-
-    PATCH /api/clientes/{id}/email: Actualización específica del email.
-
-    PUT /api/clientes/{id}: Actualización completa del cliente.
-
-    DELETE /api/clientes/{id}: Borrado físico del registro.
-    
-    GET /api/clientes/search?nombre={valor}:** Búsqueda por nombre (implementado vía Stored Procedure).
+API REST para la gestión integral de clientes, desarrollada con Java 17 y Spring Boot 3. Este proyecto destaca por un enfoque en Clean Code, alta cobertura de tests y optimización de base de datos.
 
 📊 Calidad de Código (SonarQube)
 
-El proyecto integra SonarQube para el análisis estático de código, asegurando el cumplimiento de los estándares de la industria en cuanto a mantenibilidad, confiabilidad y seguridad.
-Métricas Alcanzadas:
+El proyecto ha sido sometido a un riguroso análisis estático, alcanzando la excelencia en métricas de mantenibilidad y robustez.
+<p align="center">
+<img src="https://res.cloudinary.com/dlv9gwnw3/image/upload/v1771261519/passed-img_ugcgh4.png" alt="SonarQube Analysis" width="800">
+</p>
+    Coverage: 100% (Toda la lógica de negocio, manejo de excepciones, mappers, dto, controller, entity están testeados).
 
-    Cobertura de Tests: > 100% (Superando el umbral estándar del 80%).
-
-    Code Smells: 0 (Código limpio, sin duplicaciones ni lógicas redundantes).
-
-    Security Hotspots: Revisados y mitigados (Garantizando el manejo seguro de logs y excepciones).
+    Code Smells: 0 (Código limpio, siguiendo principios SOLID).
 
     Vulnerabilidades: 0.
 
-Cómo ejecutar el análisis de calidad:
+    Complejidad Cognitiva: 16 (Altamente legible y mantenible para el equipo).
 
-Para replicar el análisis de calidad en un entorno local, sigue estos pasos:
+🛠️ Stack Tecnológico
 
-    Levantar el servidor de SonarQube:
-    Bash
+    Core: Java 17 & Spring Boot 3.x.
 
-    docker run -d --name sonarqube -p 9000:9000 sonarqube:community
+    Persistencia: Spring Data JPA con PostgreSQL 15 (Producción).
 
-    Acceder al Panel:
-    Entra a http://localhost:9000 (User/Pass: admin/admin) y genera un Token de proyecto.
+    Mapping: Mapeo de DTOs mediante lógica personalizada para control total de la exposición de datos.
 
-    Ejecutar el Scanner de Maven:
-    Ejecuta el siguiente comando en la raíz del proyecto (reemplazando tu token):
-    Bash
+    Testing: JUnit 5, Mockito y MockMvc.
 
-    mvn clean verify sonar:sonar \
-      "-Dsonar.projectKey=test" \
-      "-Dsonar.host.url=http://localhost:9000" \
-      "-Dsonar.token=TU_TOKEN_AQUI" \
-      "-Dsonar.scm.disabled=true"
+    Documentación: Swagger / OpenAPI 3.
 
-🛠️ Registro y Auditoría de Errores
+    Infraestructura: Docker & Docker Compose.
 
-Se implementó una estrategia de Logging Persistente utilizando Logback con las siguientes características:
+🔍 Características Destacadas
 
-    Estrategia de Rotación: Los logs se almacenan en archivos físicos con rotación diaria y una retención de 30 días (RollingFileAppender).
+⚡ Búsqueda Optimizada (Stored Procedure)
 
-    Filtro de Criticidad: Se configuró un registro exclusivo para errores (errors.log) que captura únicamente eventos de nivel ERROR, facilitando la auditoría y el diagnóstico post-mortem.
+Para maximizar la performance, la búsqueda por nombre se realiza mediante un Stored Procedure nativo en PostgreSQL.
 
-    Persistencia en Docker: Mediante volúmenes, los archivos de log sobreviven al ciclo de vida de los contenedores, garantizando que la información de fallos no se pierda ante reinicios del sistema.
+    Lógica: Utiliza el operador ILIKE para búsquedas parciales e insensibles a mayúsculas.
 
-Ejecución en Local (IntelliJ IDEA)
+    Inicialización: El esquema y el procedimiento se crean automáticamente mediante schema-postgre.sql al iniciar el contenedor.
 
-Para correr el proyecto desde el IDE cargando automáticamente la configuración del archivo .env:
+🧪 Estrategia de Testing (100% Coverage)
 
-    Configuración del Run: Ir a Run -> Edit Configurations... de tu aplicación principal (ChallangeApplication).
+Se ha implementado una suite de Tests Unitarios que garantiza la estabilidad total del sistema.
 
-    Pestaña EnvFile: Seleccioná la pestaña EnvFile que aparece en el menú lateral de la ventana de configuración.
+    MockMvc: Validamos el ciclo de vida de las peticiones HTTP y el GlobalExceptionHandler.
 
-    Habilitar y Cargar:
+    Lógica de Negocio: Cobertura total en servicios, validaciones de CUIT/Email y auditoría de entidades JPA.
 
-        Marcá el check "Enable EnvFile".
+    Independencia: Los tests utilizan base de datos H2 en memoria para mayor velocidad en pipelines de CI/CD.
 
-        Hacé clic en el icono + (más) y buscá el archivo .env ubicado en la raíz del proyecto.
+🛡️ Manejo Global de Excepciones
 
-    Ejecutar: Ahora podés darle a Run o Debug y la app tomará todas las credenciales de base de datos y puertos definidos en el archivo.
+Implementación de @RestControllerAdvice que estandariza las respuestas de error (400, 404, 409, 500), proporcionando mensajes claros y precisos al consumidor de la API.
 
-📖 Documentación de la API (Swagger)
+🐳 Despliegue Rápido (Docker)
 
-La API cuenta con documentación interactiva generada con SpringDoc OpenAPI. Una vez que la aplicación esté corriendo, podés acceder a la interfaz de Swagger para visualizar y probar todos los endpoints:
+    Configurar Variables: Crea un archivo .env en la raíz con las credenciales de base de datos.
+
+    Levantar Entorno:
+
+Bash
+
+docker-compose up --build -d
+
+    API: http://localhost:8080
 
     Swagger UI: http://localhost:8080/swagger-ui/index.html
 
-    OpenAPI Spec (JSON): http://localhost:8080/v3/api-docs
+🔌 Endpoints Principales
 
-¿Qué vas a encontrar en Swagger?
+Método	Endpoint	Descripción
+GET	/api/clientes	Listado paginado de clientes.
+GET	/api/clientes/search?nombre={v}	Búsqueda avanzada vía Stored Procedure.
+POST	/api/clientes	Registro (Valida CUIT/Email únicos).
+PUT	/api/clientes/{id}	Actualización completa de datos.
+PATCH	/api/clientes/{id}/email	Actualización específica de contacto.
+DELETE	/api/clientes/{id}	Borrado físico del registro.
 
-    Interactividad: Podés ejecutar peticiones POST, PUT y PATCH, DELETE, GET directamente desde el navegador.
+📈 Auditoría y Logs
 
-    Modelos de Datos: Explicación detallada de los esquemas ClienteRequest, ClienteResponse y ApiErrorResponse.
+Se utiliza Logback con una estrategia de rotación diaria para facilitar el monitoreo:
 
-    Respuestas de Error: Documentación de los códigos de estado HTTP (200, 201, 400, 404, 409).
+    logs/app.log: Registro general de todas las operaciones exitosas y flujo del sistema.
+
+    logs/errors.log: Filtrado exclusivo de eventos críticos (ERROR) para auditoría rápida y diagnóstico de fallos.
