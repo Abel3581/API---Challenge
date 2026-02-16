@@ -78,6 +78,33 @@ docker-compose up --build -d
     PATCH	/api/clientes/{id}/email	Actualización específica de contacto.
     DELETE	/api/clientes/{id}	Borrado físico del registro.
 
+🔍 Análisis de Calidad Local (SonarQube)
+
+    Para replicar el análisis de calidad y visualizar el reporte detallado en tu máquina, sigue estos pasos:
+    1. Levantar el servidor de SonarQube
+
+    Ejecuta el siguiente comando para iniciar una instancia comunitaria en Docker:
+    Bash
+
+    docker run -d --name sonarqube -p 9000:9000 sonarqube:community
+
+    2. Acceder al Panel
+
+    Entra a http://localhost:9000 (Credenciales por defecto: admin / admin).
+
+    Crea un proyecto manualmente llamado "test" y genera un Token de Proyecto.
+
+    3. Ejecutar el Scanner de Maven
+
+    Desde la raíz del proyecto, ejecuta el siguiente comando (reemplazando tu token):
+    Bash
+    
+    mvn clean verify sonar:sonar \
+    "-Dsonar.projectKey=test" \
+    "-Dsonar.host.url=http://localhost:9000" \
+    "-Dsonar.token=TU_TOKEN_AQUI" \
+    "-Dsonar.scm.disabled=true"
+
 📈 Auditoría y Logs
 
 Se utiliza Logback con una estrategia de rotación diaria para facilitar el monitoreo:
