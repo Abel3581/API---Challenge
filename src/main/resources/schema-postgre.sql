@@ -26,12 +26,22 @@ ON CONFLICT (cuit) DO NOTHING;
 
 -- 3. STORED PROCEDURE
 -- 'CREATE OR REPLACE' ya se encarga de actualizarlo sin borrar la tabla.
-CREATE OR REPLACE FUNCTION buscar_clientes_por_nombre(nombre_buscado text)
-RETURNS SETOF clientes LANGUAGE plpgsql AS $$
+CREATE OR REPLACE FUNCTION buscar_clientes_por_nombre(
+    nombre_buscado text,
+    limit_param int,
+    offset_param int
+)
+RETURNS SETOF clientes
+LANGUAGE plpgsql
+AS $$
 BEGIN
     RETURN QUERY
-    SELECT * FROM clientes
-    WHERE nombre ILIKE '%' || nombre_buscado || '%';
+    SELECT *
+    FROM clientes
+    WHERE nombre ILIKE '%' || nombre_buscado || '%'
+    ORDER BY id
+    LIMIT limit_param
+    OFFSET offset_param;
 END;
-$$
+$$;
 ^^

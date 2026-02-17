@@ -6,8 +6,6 @@ import com.intuit.challange.dto.PagedResponse;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
-import java.util.List;
-
 
 public interface ClienteService {
     @Nullable
@@ -21,7 +19,7 @@ public interface ClienteService {
 
     ClienteResponse actualizarEmail ( Long id , String nuevoEmail );
 
-    List< ClienteResponse> buscarPorNombre ( String nombre );
-
     PagedResponse <ClienteResponse> listar ( Pageable pageable );
+
+    PagedResponse< ClienteResponse> buscarPorNombre ( String nombre , Pageable pageable );
 }

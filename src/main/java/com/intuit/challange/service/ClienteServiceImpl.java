@@ -10,7 +10,6 @@ import com.intuit.challange.mapper.ClienteMapper;
 import com.intuit.challange.repository.ClienteRepository;
 import com.intuit.challange.service.abstraction.ClienteService;
 
-import com.intuit.challange.service.validator.ClienteValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -28,20 +27,30 @@ public class ClienteServiceImpl implements ClienteService {
 
     private final ClienteRepository repository;
     private final ClienteMapper clienteMapper;
-    private final ClienteValidator clienteValidator;
 
     @Override
     @Transactional
     public ClienteResponse crear(ClienteRequest request) {
         log.info("Iniciando creación de cliente. CUIT: {}", request.getCuit());
 
-        clienteValidator.validarParaCreacion(request);
+        validarUnicidad(request);
 
         Cliente cliente = clienteMapper.mapToEntity(request);
         Cliente guardado = repository.save(cliente);
 
         log.info("Cliente creado exitosamente con ID: {}", guardado.getId());
         return clienteMapper.mapToResponse(guardado);
+    }
+
+    private void validarUnicidad(ClienteRequest request) {
+        if (repository.existsByCuit(request.getCuit())) {
+            log.error("Intento de creación con CUIT duplicado: {}", request.getCuit());
+            throw new ArgumentoDuplicadoException("Ya existe un cliente con ese CUIT");
+        }
+        if (repository.existsByEmail(request.getEmail())) {
+            log.error("Intento de creación con email duplicado: {}", request.getEmail());
+            throw new ArgumentoDuplicadoException("Ya existe un cliente con ese email");
+        }
     }
 
     @Transactional(readOnly = true)
@@ -115,7 +124,6 @@ public class ClienteServiceImpl implements ClienteService {
     public void eliminar(Long id) {
         log.info("Iniciando proceso de eliminación para el cliente ID: {}", id);
 
-        // Buscamos y ejecutamos la acción en una sola cadena lógica
         repository.findById(id)
                 .ifPresentOrElse(
                         cliente -> {
@@ -131,29 +139,60 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<ClienteResponse> buscarPorNombre(String nombre) {
-        // 1. Validación Fail-Fast (Evita llamadas innecesarias a la DB)
+    public PagedResponse<ClienteResponse> buscarPorNombre(String nombre, Pageable pageable) {
+
+        log.info("Solicitud de búsqueda de clientes por nombre '{}' - Página: {}, Tamaño: {}, Orden: {}",
+                nombre, pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort());
+
         if (nombre == null || nombre.trim().isEmpty()) {
             log.warn("Búsqueda abortada: El parámetro 'nombre' está vacío");
-            return Collections.emptyList();
+            return PagedResponse.<ClienteResponse>builder()
+                    .content(Collections.emptyList())
+                    .page(PagedResponse.PageMetadata.builder()
+                            .size(pageable.getPageSize())
+                            .totalElements(0)
+                            .totalPages(0)
+                            .number(pageable.getPageNumber())
+                            .build())
+                    .build();
         }
 
         String nombreBusqueda = nombre.trim();
-        log.info("Ejecutando búsqueda por nombre vía Stored Procedure: '{}'", nombreBusqueda);
 
-        // 2. Ejecución y procesamiento defensivo
-        List<Cliente> clientes = repository.searchByNombreProcedure(nombreBusqueda);
+        int offset = pageable.getPageNumber() * pageable.getPageSize();
+        int limit = pageable.getPageSize();
 
-        if (clientes == null || clientes.isEmpty()) {
-            log.info("No se encontraron clientes que coincidan con: '{}'", nombreBusqueda);
-            return Collections.emptyList();
+        List<Cliente> clientes =
+                repository.searchByNombreProcedure(nombreBusqueda, limit, offset);
+
+        long totalElements = repository.countByNombre(nombreBusqueda);
+
+        int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
+
+        if (pageable.getPageNumber() >= totalPages && totalElements > 0) {
+            log.error("Se solicitó una página inexistente: {} de un total de {}",
+                    pageable.getPageNumber(), totalPages);
         }
 
-        // 3. Transformación eficiente
-        return clientes.stream()
+        List<ClienteResponse> contenido = clientes.stream()
                 .map(clienteMapper::mapToResponse)
                 .toList();
+
+        log.info("Búsqueda completada. Se encontraron {} elementos en esta página. Total global: {}",
+                contenido.size(), totalElements);
+
+        return PagedResponse.<ClienteResponse>builder()
+                .content(contenido)
+                .page(PagedResponse.PageMetadata.builder()
+                        .size(pageable.getPageSize())
+                        .totalElements(totalElements)
+                        .totalPages(totalPages)
+                        .number(pageable.getPageNumber())
+                        .build())
+                .build();
     }
+
+
 
     @Transactional(readOnly = true)
     @Override
@@ -185,6 +224,5 @@ public class ClienteServiceImpl implements ClienteService {
                         .build())
                 .build();
     }
-
 
 }

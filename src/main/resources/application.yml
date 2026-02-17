@@ -23,7 +23,6 @@ spring:
     init:
       mode: always
       separator: "^^" # Cambiamos el separador a algo que no uses en el SQL
-      # Especificamos la ruta del script si no usa el nombre por defecto
       schema-locations: classpath:schema-postgre.sql
 
   profiles:

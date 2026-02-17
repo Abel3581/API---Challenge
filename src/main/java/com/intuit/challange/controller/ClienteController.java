@@ -17,7 +17,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/clientes")
@@ -101,11 +100,20 @@ public class ClienteController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/search")
-    @Operation(summary = "Búsqueda por nombre", description = "Busca clientes mediante un Stored Procedure")
-    @ApiResponse(responseCode = "200", description = "Búsqueda completada")
-    public ResponseEntity<List<ClienteResponse>> buscarPorNombre(@RequestParam String nombre) {
-        return ResponseEntity.ok(service.buscarPorNombre(nombre));
+    @GetMapping("/buscar")
+    @Operation(summary = "Buscar clientes por nombre con paginación",
+            description = "Obtiene una lista paginada de clientes filtrados por nombre.")
+    @ApiResponse(responseCode = "200", description = "Lista paginada obtenida correctamente",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PagedResponse.class)))
+    @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    public ResponseEntity<PagedResponse<ClienteResponse>> buscarPorNombre(
+            @RequestParam String nombre,
+            @ParameterObject
+            @PageableDefault(page = 0, size = 10, sort = "id") Pageable pageable) {
+
+        return ResponseEntity.ok(service.buscarPorNombre(nombre, pageable));
     }
 
     @Operation(hidden = true)

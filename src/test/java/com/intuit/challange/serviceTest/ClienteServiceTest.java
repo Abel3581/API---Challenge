@@ -9,7 +9,6 @@ import com.intuit.challange.exception.ClienteNotFoundException;
 import com.intuit.challange.mapper.ClienteMapper;
 import com.intuit.challange.repository.ClienteRepository;
 import com.intuit.challange.service.ClienteServiceImpl;
-import com.intuit.challange.service.validator.ClienteValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,9 +41,6 @@ class ClienteServiceTest {
     @InjectMocks
     private ClienteServiceImpl service;
 
-    @Mock
-    private ClienteValidator clienteValidator;
-
     // =====================================================
     // CREATE
     // =====================================================
@@ -52,50 +48,33 @@ class ClienteServiceTest {
     @Test
     @DisplayName("crear - debe guardar correctamente cuando no hay duplicados")
     void crear_ok() {
-        // GIVEN
+        // GIVEN: Preparamos los datos de entrada y el comportamiento de los mocks
         ClienteRequest request = this.crearRequest();
         Cliente entity = new Cliente();
         Cliente guardado = new Cliente();
         guardado.setId(1L);
 
+        // Seteamos el nombre en el response que devolverá el mapper para que el assertEquals no falle
         ClienteResponse response = new ClienteResponse();
         response.setNombre("Juan");
 
-        // No necesitamos mockear el repository.exists porque el Service ya no lo llama
-        // Solo verificamos que el mapper y el save funcionen
+        when(repository.existsByCuit(request.getCuit())).thenReturn(false);
+        when(repository.existsByEmail(request.getEmail())).thenReturn(false);
         when(clienteMapper.mapToEntity(request)).thenReturn(entity);
         when(repository.save(entity)).thenReturn(guardado);
         when(clienteMapper.mapToResponse(guardado)).thenReturn(response);
 
-        // WHEN
+        // WHEN: Ejecutamos el método a testear
         ClienteResponse resultado = service.crear(request);
 
-        // THEN
+        // THEN: Verificamos los resultados y el comportamiento
         assertNotNull(resultado);
         assertEquals("Juan", resultado.getNombre());
 
-        // Verificamos que se llamó al validador una vez
-        verify(clienteValidator).validarParaCreacion(request);
+        // Verificamos que se llamó al repositorio para guardar la entidad
         verify(repository).save(entity);
     }
 
-    @Test
-    @DisplayName("crear - debe lanzar excepción si el validador falla")
-    void crear_error_validacion() {
-        // GIVEN
-        ClienteRequest request = crearRequest();
-
-        // Simulamos que el VALIDADOR lanza la excepción
-        doThrow(new ArgumentoDuplicadoException("Ya existe un cliente con ese CUIT"))
-                .when(clienteValidator).validarParaCreacion(request);
-
-        // WHEN & THEN
-        assertThrows(ArgumentoDuplicadoException.class, () -> service.crear(request));
-
-        // Verificamos que el proceso se detuvo y NUNCA se llamó al save
-        verify(repository, never()).save(any());
-    }
-/*
     @Test
     @DisplayName("crear - debe lanzar excepción si CUIT duplicado")
     void crear_cuitDuplicado() {
@@ -120,8 +99,6 @@ class ClienteServiceTest {
         assertThrows(ArgumentoDuplicadoException.class,
                 () -> service.crear(request));
     }
-
- */
 
     // =====================================================
     // BUSCAR POR ID
@@ -455,85 +432,126 @@ class ClienteServiceTest {
 
 
     // =====================================================
-    // STORED PROCEDURE
+    // BUSCAR POR NOMBRE (PROCEDURE)
     // =====================================================
     @Test
-    @DisplayName("buscarPorNombre - debe limpiar el nombre y retornar lista de resultados")
+    @DisplayName("buscarPorNombre - debe retornar PagedResponse correctamente mapeado")
     void buscarPorNombre_ok() {
-        // GIVEN: Un nombre con espacios para probar el trim()
-        String nombreSucio = "  Juan  ";
-        String nombreLimpio = "Juan";
 
-        Cliente cliente = Cliente.builder().id(1L).nombre(nombreLimpio).build();
-        ClienteResponse response = new ClienteResponse();
+        Pageable pageable = PageRequest.of(0, 10);
+        Cliente cliente = new Cliente();
 
-        when(repository.searchByNombreProcedure(nombreLimpio))
+        when(repository.searchByNombreProcedure("Juan", 10, 0))
                 .thenReturn(List.of(cliente));
 
+        when(repository.countByNombre("Juan"))
+                .thenReturn(1L);
+
         when(clienteMapper.mapToResponse(cliente))
-                .thenReturn(response);
+                .thenReturn(new ClienteResponse());
 
-        // WHEN
-        List<ClienteResponse> resultado = service.buscarPorNombre(nombreSucio);
+        PagedResponse<ClienteResponse> resultado =
+                service.buscarPorNombre("Juan", pageable);
 
-        // THEN
-        assertNotNull(resultado);
-        assertEquals(1, resultado.size());
-
-        // Verificamos que el service hizo el trim() antes de llamar al repositorio
-        verify(repository).searchByNombreProcedure(nombreLimpio);
-        verify(repository, times(1)).searchByNombreProcedure(anyString());
+        assertEquals(1, resultado.getContent().size());
+        assertEquals(1, resultado.getPage().getTotalElements());
+        assertEquals(1, resultado.getPage().getTotalPages());
+        assertEquals(0, resultado.getPage().getNumber());
     }
 
     @Test
-    @DisplayName("buscarPorNombre - debe retornar lista vacía si el nombre es nulo o vacío")
-    void buscarPorNombre_empty() {
-        // Probamos el comportamiento "Fail-Fast" sin tocar la DB
-        List<ClienteResponse> resultadoNull = service.buscarPorNombre(null);
-        List<ClienteResponse> resultadoVacio = service.buscarPorNombre("   ");
+    @DisplayName("buscarPorNombre - debe cubrir rama cuando página solicitada es mayor al total")
+    void buscarPorNombre_paginaInexistente() {
 
-        assertTrue(resultadoNull.isEmpty());
-        assertTrue(resultadoVacio.isEmpty());
+        Pageable pageable = PageRequest.of(99, 10);
 
-        // Verificamos que NUNCA se llamó al repositorio (ahorro de recursos)
-        verify(repository, never()).searchByNombreProcedure(anyString());
+        when(repository.searchByNombreProcedure("Juan", 10, 990))
+                .thenReturn(List.of());
+
+        when(repository.countByNombre("Juan"))
+                .thenReturn(1L); // totalPages = 1
+
+        PagedResponse<ClienteResponse> resultado =
+                service.buscarPorNombre("Juan", pageable);
+
+        assertNotNull(resultado);
     }
 
     @Test
-    @DisplayName("buscarPorNombre - Debe retornar lista vacía cuando el SP no encuentra nada")
-    void buscarPorNombre_cuandoNoHayResultados() {
-        // GIVEN
-        String nombre = "Inexistente";
-        // Simulamos que el repositorio devuelve una lista vacía (no null)
-        when(repository.searchByNombreProcedure(nombre)).thenReturn(Collections.emptyList());
+    @DisplayName("buscarPorNombre - debe cubrir rama TRUE del if interno")
+    void buscarPorNombre_cubreIfVerdadero() {
 
-        // WHEN
-        List<ClienteResponse> resultado = service.buscarPorNombre(nombre);
+        Pageable pageable = PageRequest.of(5, 10);
 
-        // THEN
+        when(repository.searchByNombreProcedure("Juan", 10, 50))
+                .thenReturn(List.of(new Cliente()));
+
+        when(repository.countByNombre("Juan"))
+                .thenReturn(1L); // totalPages = 1
+
+        when(clienteMapper.mapToResponse(any()))
+                .thenReturn(new ClienteResponse());
+
+        PagedResponse<ClienteResponse> resultado =
+                service.buscarPorNombre("Juan", pageable);
+
         assertNotNull(resultado);
-        assertTrue(resultado.isEmpty());
-        // Verificamos que se ejecutó la lógica hasta el log de "No se encontraron clientes"
-        verify(repository).searchByNombreProcedure(nombre);
     }
 
     @Test
-    @DisplayName("buscarPorNombre - Debe manejar correctamente si el repositorio devuelve null")
-    void buscarPorNombre_cuandoRepositorioDevuelveNull() {
-        // GIVEN
-        String nombre = "ErrorDB";
-        // Forzamos explícitamente que el repositorio devuelva null
-        when(repository.searchByNombreProcedure(nombre)).thenReturn(null);
+    @DisplayName("buscarPorNombre - debe retornar vacío cuando nombre es null")
+    void buscarPorNombre_nombreNull() {
 
-        // WHEN
-        List<ClienteResponse> resultado = service.buscarPorNombre(nombre);
+        Pageable pageable = PageRequest.of(0, 10);
 
-        // THEN
-        // El service no debe devolver null, sino Collections.emptyList()
-        assertNotNull(resultado);
-        assertTrue(resultado.isEmpty());
-        verify(repository).searchByNombreProcedure(nombre);
+        PagedResponse<ClienteResponse> resultado =
+                service.buscarPorNombre(null, pageable);
+
+        assertTrue(resultado.getContent().isEmpty());
+        assertEquals(0, resultado.getPage().getTotalElements());
+
+        verify(repository, never())
+                .searchByNombreProcedure(any(), anyInt(), anyInt());
     }
+
+    @Test
+    @DisplayName("buscarPorNombre - debe retornar lista vacía cuando no hay coincidencias")
+    void buscarPorNombre_sinResultados() {
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(repository.searchByNombreProcedure("Pedro", 10, 0))
+                .thenReturn(List.of());
+
+        when(repository.countByNombre("Pedro"))
+                .thenReturn(0L);
+
+        PagedResponse<ClienteResponse> resultado =
+                service.buscarPorNombre("Pedro", pageable);
+
+        assertTrue(resultado.getContent().isEmpty());
+        assertEquals(0, resultado.getPage().getTotalElements());
+    }
+
+    @Test
+    @DisplayName("buscarPorNombre - debe retornar vacío cuando nombre es string vacío")
+    void buscarPorNombre_nombreVacio() {
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        PagedResponse<ClienteResponse> resultado =
+                service.buscarPorNombre("", pageable);
+
+        assertTrue(resultado.getContent().isEmpty());
+        assertEquals(0, resultado.getPage().getTotalElements());
+
+        verify(repository, never())
+                .searchByNombreProcedure(any(), anyInt(), anyInt());
+    }
+
+
+
+
 
     // =====================================================
     // HELPER

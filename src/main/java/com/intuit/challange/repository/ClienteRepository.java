@@ -15,6 +15,26 @@ public interface ClienteRepository extends JpaRepository< Cliente, Long > {
 
     boolean existsByEmail(String email);
 
-    @Query(value = "SELECT * FROM buscar_clientes_por_nombre(CAST(:nombre AS text))", nativeQuery = true)
-    List<Cliente> searchByNombreProcedure(@Param("nombre") String nombre);
+    @Query(value = """
+            SELECT *
+                FROM buscar_clientes_por_nombre(
+                    CAST(:nombre AS text),
+                    :limit,
+                    :offset
+                )
+            """, nativeQuery = true)
+    List<Cliente> searchByNombreProcedure(
+            @Param("nombre") String nombre,
+            @Param("limit") int limit,
+            @Param("offset") int offset
+    );
+
+    @Query(value = """
+            SELECT COUNT(*)
+            FROM clientes
+            WHERE nombre ILIKE CONCAT('%', :nombre, '%')
+        """, nativeQuery = true)
+    long countByNombre(@Param("nombre") String nombre);
+
+
 }

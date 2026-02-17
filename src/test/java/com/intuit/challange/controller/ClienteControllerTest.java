@@ -135,7 +135,7 @@ class ClienteControllerTest {
     // ==========================
     // BUSCAR POR NOMBRE
     // ==========================
-
+/*
     @Test
     void buscarPorNombre_debeRetornar200() {
 
@@ -148,6 +148,37 @@ class ClienteControllerTest {
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(lista, result.getBody());
+    }
+
+ */
+    // ==========================
+    // BUSCAR POR NOMBRE
+    // ==========================
+
+    @Test
+    void buscarPorNombre_debeRetornar200() {
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        PagedResponse<ClienteResponse> pagedResponse =
+                PagedResponse.<ClienteResponse>builder()
+                        .content(List.of(new ClienteResponse()))
+                        .page(PagedResponse.PageMetadata.builder()
+                                .size(10)
+                                .totalElements(1)
+                                .totalPages(1)
+                                .number(0)
+                                .build())
+                        .build();
+
+        when(service.buscarPorNombre("Juan", pageable))
+                .thenReturn(pagedResponse);
+
+        ResponseEntity<PagedResponse<ClienteResponse>> result =
+                controller.buscarPorNombre("Juan", pageable);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(pagedResponse, result.getBody());
     }
 
     // ==========================
