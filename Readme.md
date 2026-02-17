@@ -31,26 +31,104 @@ El proyecto ha sido sometido a un riguroso análisis estático, alcanzando la ex
 
     Infraestructura: Docker & Docker Compose.
 
-🔍 Características Destacadas
-
-⚡ Búsqueda Optimizada (Stored Procedure)
-
-Para maximizar la performance, la búsqueda por nombre se realiza mediante un Stored Procedure nativo en PostgreSQL.
-
-    Lógica: Utiliza el operador ILIKE para búsquedas parciales e insensibles a mayúsculas.
-
-    Inicialización: El esquema y el procedimiento se crean automáticamente mediante schema-postgre.sql al iniciar el contenedor.
-
 🧪 Estrategia de Testing (100% Coverage)
 
-Se ha implementado una suite de Tests Unitarios que garantiza la estabilidad total del sistema.
+Se implementó una suite completa de tests unitarios que cubre el 100% del código de la aplicación, garantizando estabilidad, consistencia y validación integral de las reglas de negocio.
 
-    MockMvc: Validamos el ciclo de vida de las peticiones HTTP y el GlobalExceptionHandler.
+La cobertura incluye todas las capas del sistema:
 
-    Lógica de Negocio: Cobertura total en servicios, validaciones de CUIT/Email y auditoría de entidades JPA.
+✅ 1. Controller Layer
 
-    Independencia: Los tests utilizan base de datos H2 en memoria para mayor velocidad en pipelines de CI/CD.
+    Se testearon todos los endpoints REST validando:
+    
+    Status codes correctos (200, 201, 400, 404, 409)
+    
+    Estructura del JSON de respuesta
+    
+    Manejo de parámetros inválidos
+    
+    Validaciones de entrada
+    
+    Comportamiento con paginación
+    
+    Integración con el GlobalExceptionHandler
+    
+    Se utilizó MockMvc para simular requests HTTP sin levantar el servidor.
 
+✅ 2. Service Layer
+
+    Se validó exhaustivamente la lógica de negocio mediante mocks del repository.
+    
+    Se cubrieron:
+    
+    Flujos exitosos
+    
+    Validaciones de unicidad (email y cuit)
+    
+    Manejo de cliente inexistente
+    
+    Validación de nombre nulo o vacío
+    
+    Escenarios alternativos y excepciones personalizadas
+    
+    Frameworks utilizados:
+    
+    JUnit 5
+    
+    Mockito
+
+✅ 3. Repository Layer
+
+    Se testearon los métodos personalizados asegurando:
+    
+    Correcta ejecución de queries
+    
+    Respuestas esperadas ante distintos escenarios
+    
+    Integración con la base de datos en entorno de testing
+
+✅ 4. DTO y Validaciones
+
+    Se validaron:
+    
+    Restricciones de campos obligatorios
+    
+    Anotaciones de validación (@NotNull, @NotBlank, etc.)
+    
+    Serialización y deserialización JSON
+
+✅ 5. Mapper Layer
+
+    Se testearon las conversiones:
+    
+    Entity → DTO
+    
+    DTO → Entity
+    
+    Casos con valores nulos
+    
+    Mapeo completo de todos los campos
+
+✅ 6. Manejo Global de Excepciones
+
+    Se validó el comportamiento del GlobalExceptionHandler verificando:
+    
+    Estructura uniforme de errores
+    
+    Mensajes correctos
+    
+    Status HTTP adecuados
+    
+    Manejo de excepciones personalizadas
+
+📊 Resultado
+
+✔ 100% Line Coverage
+✔ 100% Branch Coverage
+✔ Cobertura de flujos alternativos
+✔ Cobertura de escenarios negativos
+
+La estrategia de testing fue diseñada bajo el principio de aislamiento por capa y validación exhaustiva de reglas de negocio, garantizando que cualquier modificación en el comportamiento del sistema sea detectada inmediatamente por la suite de tests.
 🛡️ Manejo Global de Excepciones
 
 Implementación de @RestControllerAdvice que estandariza las respuestas de error (400, 404, 409, 500), proporcionando mensajes claros y precisos al consumidor de la API.
