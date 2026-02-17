@@ -129,6 +129,7 @@ La cobertura incluye todas las capas del sistema:
 ✔ Cobertura de escenarios negativos
 
 La estrategia de testing fue diseñada bajo el principio de aislamiento por capa y validación exhaustiva de reglas de negocio, garantizando que cualquier modificación en el comportamiento del sistema sea detectada inmediatamente por la suite de tests.
+
 🛡️ Manejo Global de Excepciones
 
 Implementación de @RestControllerAdvice que estandariza las respuestas de error (400, 404, 409, 500), proporcionando mensajes claros y precisos al consumidor de la API.
