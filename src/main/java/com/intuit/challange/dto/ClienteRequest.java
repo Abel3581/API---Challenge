@@ -60,13 +60,13 @@ public class ClienteRequest {
     private LocalDate fechaNacimiento;
 
     @Pattern(
-            regexp = "^\\+?[0-9]{1,4}?[-.\\s]?\\(?[0-9]{1,4}\\)?[-.\\s]?[0-9\\s-]{4,15}$",
+            regexp = "^\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,4}\\)?[-.\\s]?[\\d\\s-]{4,15}$",
             message = "El teléfono tiene un formato inválido"
     )
-    @Schema (
+    @Schema(
             description = "Número de teléfono celular. Puede incluir código país (+54), área y separadores.",
             example = "+54 11 2345-6789",
-            pattern = "^\\+?[0-9]{1,4}?[-.\\s]?\\(?[0-9]{1,4}\\)?[-.\\s]?[0-9\\s-]{4,15}$"
+            pattern = "^\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,4}\\)?[-.\\s]?[\\d\\s-]{4,15}$"
     )
     private String telefonoCelular;
 
