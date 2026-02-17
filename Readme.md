@@ -72,11 +72,39 @@ docker-compose up --build -d
 🔌 Endpoints Principales
 
     GET	/api/clientes	Listado paginado de clientes.
-    GET	/api/clientes/search?nombre={v}	Búsqueda avanzada vía Stored Procedure.
+    GET /api/clientes/search?nombre=&page=&size= Búsqueda paginada vía Stored Function
     POST	/api/clientes	Registro (Valida CUIT/Email únicos).
     PUT	/api/clientes/{id}	Actualización completa de datos.
     PATCH	/api/clientes/{id}/email	Actualización específica de contacto.
     DELETE	/api/clientes/{id}	Borrado físico del registro.
+
+🔍 Características Destacadas
+
+⚡ Búsqueda Optimizada (Stored Function + Paginación)
+
+    La búsqueda por nombre se implementa mediante una Stored Function nativa en PostgreSQL, optimizada para performance y escalabilidad.
+
+✔ Características:
+
+    Uso de ILIKE para búsquedas parciales e insensibles a mayúsculas.
+    
+    Implementación con LIMIT y OFFSET para soportar paginación real desde base de datos.
+    
+    Evita traer registros innecesarios a memoria.
+    
+    Integrada con Spring Data JPA mediante native query.
+
+📌 Endpoint:
+
+    GET /api/clientes/search?nombre={valor}&page={n}&size={m}
+
+    nombre → criterio de búsqueda
+    
+    page → número de página (base 0)
+    
+    size → cantidad de registros por página
+    
+    Esto permite búsquedas eficientes incluso con grandes volúmenes de datos.
 
 🔍 Análisis de Calidad Local (SonarQube)
 
@@ -112,3 +140,85 @@ Se utiliza Logback con una estrategia de rotación diaria para facilitar el moni
     logs/app.log: Registro general de todas las operaciones exitosas y flujo del sistema.
 
     logs/errors.log: Filtrado exclusivo de eventos críticos (ERROR) para auditoría rápida y diagnóstico de fallos.
+
+🏗️ Arquitectura y Patrones Aplicados
+
+📐 Arquitectura General
+
+El proyecto está desarrollado siguiendo una Arquitectura en Capas (Layered Architecture), promoviendo separación de responsabilidades, bajo acoplamiento y alta cohesión.
+
+Estructura principal:
+
+    controller → service → repository → database
+
+    Cada capa cumple una responsabilidad específica:
+
+    Controller → Manejo de requests HTTP
+    
+    Service → Lógica de negocio
+    
+    Repository → Acceso a datos
+    
+    Entity → Modelo de persistencia
+    
+    DTO → Modelo de transferencia de datos
+    
+    Mapper → Conversión entre Entity y DTO
+    
+    Exception → Manejo centralizado de errores
+    
+    Config → Configuración técnica del framework
+
+La aplicación está construida con Spring Boot utilizando Spring Data JPA como capa de persistencia y Hibernate como proveedor ORM.
+
+🧠 Patrones de Diseño Implementados
+
+    ✔ 1. Layered Architecture
+    
+    Separación clara en capas independientes que permite:
+    
+    Escalabilidad
+    
+    Testeo aislado
+    
+    Mantenibilidad
+    
+    ✔ 2. Repository Pattern
+    
+    Abstracción del acceso a datos mediante interfaces que desacoplan la lógica de negocio de la persistencia.
+    
+    ✔ 3. Service Layer Pattern
+    
+    La lógica de negocio se centraliza en la capa de servicios, evitando lógica en los controladores.
+    
+    ✔ 4. DTO (Data Transfer Object)
+    
+    Se utilizan DTOs para:
+    
+    No exponer entidades directamente
+    
+    Controlar la información que se devuelve al cliente
+    
+    Desacoplar modelo de persistencia del modelo de API
+    
+    ✔ 5. Mapper Pattern
+    
+    Conversión explícita entre Entity y DTO, asegurando separación entre dominio y transporte de datos.
+    
+    ✔ 6. Dependency Injection (IoC)
+    
+    Implementado mediante el contenedor de inversión de control de Spring, promoviendo bajo acoplamiento y facilitando el testing.
+    
+    ✔ 7. Interface + Implementation Separation
+    
+    Se define una interfaz en service.abstraction y su implementación concreta en service, aplicando el principio de inversión de dependencias (SOLID).
+    
+    ✔ 8. Global Exception Handling
+
+Manejo centralizado de errores mediante @ControllerAdvice, garantizando:
+
+    Respuestas HTTP consistentes
+    
+    Mensajes de error estructurados
+    
+    Mejor experiencia para consumidores del API

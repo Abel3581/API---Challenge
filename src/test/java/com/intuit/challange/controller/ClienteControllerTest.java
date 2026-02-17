@@ -135,25 +135,6 @@ class ClienteControllerTest {
     // ==========================
     // BUSCAR POR NOMBRE
     // ==========================
-/*
-    @Test
-    void buscarPorNombre_debeRetornar200() {
-
-        List <ClienteResponse> lista = List.of(new ClienteResponse());
-
-        when(service.buscarPorNombre("Juan")).thenReturn(lista);
-
-        ResponseEntity<List<ClienteResponse>> result =
-                controller.buscarPorNombre("Juan");
-
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(lista, result.getBody());
-    }
-
- */
-    // ==========================
-    // BUSCAR POR NOMBRE
-    // ==========================
 
     @Test
     void buscarPorNombre_debeRetornar200() {
