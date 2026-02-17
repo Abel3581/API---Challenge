@@ -30,64 +30,64 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     @Transactional
-    public ClienteResponse crear(ClienteRequest request) {
-        log.info("Iniciando creación de cliente. CUIT: {}", request.getCuit());
+    public ClienteResponse crear ( ClienteRequest request ) {
+        log.info("Iniciando creación de cliente. CUIT: {}" , request.getCuit());
 
         validarUnicidad(request);
 
         Cliente cliente = clienteMapper.mapToEntity(request);
         Cliente guardado = repository.save(cliente);
 
-        log.info("Cliente creado exitosamente con ID: {}", guardado.getId());
+        log.info("Cliente creado exitosamente con ID: {}" , guardado.getId());
         return clienteMapper.mapToResponse(guardado);
     }
 
-    private void validarUnicidad(ClienteRequest request) {
+    private void validarUnicidad ( ClienteRequest request ) {
         if (repository.existsByCuit(request.getCuit())) {
-            log.error("Intento de creación con CUIT duplicado: {}", request.getCuit());
+            log.error("Intento de creación con CUIT duplicado: {}" , request.getCuit());
             throw new ArgumentoDuplicadoException("Ya existe un cliente con ese CUIT");
         }
         if (repository.existsByEmail(request.getEmail())) {
-            log.error("Intento de creación con email duplicado: {}", request.getEmail());
+            log.error("Intento de creación con email duplicado: {}" , request.getEmail());
             throw new ArgumentoDuplicadoException("Ya existe un cliente con ese email");
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional ( readOnly = true )
     @Override
-    public ClienteResponse buscarPorId(Long id) {
+    public ClienteResponse buscarPorId ( Long id ) {
 
-        log.debug("Buscando cliente con ID: {}", id);
+        log.debug("Buscando cliente con ID: {}" , id);
 
         Cliente cliente = repository.findById(id)
                 .orElseThrow(() -> {
-                    log.error("Cliente no encontrado con ID: {}", id);
+                    log.error("Cliente no encontrado con ID: {}" , id);
                     return new ClienteNotFoundException(id);
                 });
 
-        log.info("Cliente encontrado con ID: {}", id);
+        log.info("Cliente encontrado con ID: {}" , id);
 
         return clienteMapper.mapToResponse(cliente);
     }
 
     @Override
     @Transactional
-    public ClienteResponse actualizar(Long id, ClienteRequest request) {
-        log.info("Actualizando cliente con ID: {}", id);
+    public ClienteResponse actualizar ( Long id , ClienteRequest request ) {
+        log.info("Actualizando cliente con ID: {}" , id);
 
         Cliente cliente = repository.findById(id)
                 .orElseThrow(() -> new ClienteNotFoundException(id));
 
-        validarDuplicadosUpdate(cliente, request);
+        validarDuplicadosUpdate(cliente , request);
 
-        clienteMapper.updateEntity(cliente, request);
+        clienteMapper.updateEntity(cliente , request);
         Cliente actualizado = repository.save(cliente);
 
-        log.info("Cliente actualizado correctamente. ID: {}", actualizado.getId());
+        log.info("Cliente actualizado correctamente. ID: {}" , actualizado.getId());
         return clienteMapper.mapToResponse(actualizado);
     }
 
-    private void validarDuplicadosUpdate(Cliente clienteActual, ClienteRequest request) {
+    private void validarDuplicadosUpdate ( Cliente clienteActual , ClienteRequest request ) {
 
         if (!clienteActual.getCuit().equals(request.getCuit()) &&
                 repository.existsByCuit(request.getCuit())) {
@@ -100,89 +100,105 @@ public class ClienteServiceImpl implements ClienteService {
         }
     }
 
-     @Override
-     @Transactional
-     public ClienteResponse actualizarEmail(Long id, String nuevoEmail) {
-         log.info("Actualizando email del cliente ID: {} a {}", id, nuevoEmail);
+    @Override
+    @Transactional
+    public ClienteResponse actualizarEmail ( Long id , String nuevoEmail ) {
+        log.info("Actualizando email del cliente ID: {} a {}" , id , nuevoEmail);
 
-         Cliente cliente = repository.findById(id)
-                 .orElseThrow(() -> new ClienteNotFoundException(id));
+        Cliente cliente = repository.findById(id)
+                .orElseThrow(() -> new ClienteNotFoundException(id));
 
-         if (!cliente.getEmail().equals(nuevoEmail) && repository.existsByEmail(nuevoEmail)) {
-             log.error("Email duplicado detectado: {}", nuevoEmail);
-             throw new ArgumentoDuplicadoException("El email ya pertenece a otro cliente");
-         }
+        if (!cliente.getEmail().equals(nuevoEmail) && repository.existsByEmail(nuevoEmail)) {
+            log.error("Email duplicado detectado: {}" , nuevoEmail);
+            throw new ArgumentoDuplicadoException("El email ya pertenece a otro cliente");
+        }
 
-         cliente.setEmail(nuevoEmail);
-         Cliente actualizado = repository.save(cliente);
+        cliente.setEmail(nuevoEmail);
+        Cliente actualizado = repository.save(cliente);
 
-         return clienteMapper.mapToResponse(actualizado);
-     }
+        return clienteMapper.mapToResponse(actualizado);
+    }
 
     @Override
     @Transactional
-    public void eliminar(Long id) {
-        log.info("Iniciando proceso de eliminación para el cliente ID: {}", id);
+    public void eliminar ( Long id ) {
+        log.info("Iniciando proceso de eliminación para el cliente ID: {}" , id);
 
         repository.findById(id)
                 .ifPresentOrElse(
                         cliente -> {
                             repository.delete(cliente);
-                            log.info("Cliente eliminado exitosamente. ID: {}", id);
-                        },
+                            log.info("Cliente eliminado exitosamente. ID: {}" , id);
+                        } ,
                         () -> {
-                            log.error("Fallo al eliminar: Cliente no encontrado con ID: {}", id);
+                            log.error("Fallo al eliminar: Cliente no encontrado con ID: {}" , id);
                             throw new ClienteNotFoundException(id);
                         }
                 );
     }
 
-    @Transactional(readOnly = true)
+    @Transactional ( readOnly = true )
     @Override
-    public PagedResponse<ClienteResponse> buscarPorNombre(String nombre, Pageable pageable) {
+    public PagedResponse < ClienteResponse > buscarPorNombre ( String nombre , Pageable pageable ) {
 
-        log.info("Solicitud de búsqueda de clientes por nombre '{}' - Página: {}, Tamaño: {}, Orden: {}",
-                nombre, pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort());
+        log.info("Solicitud búsqueda clientes - Nombre: '{}', Página: {}, Tamaño: {}, Orden: {}" ,
+                nombre , pageable.getPageNumber() , pageable.getPageSize() , pageable.getSort());
 
-        if (nombre == null || nombre.trim().isEmpty()) {
-            log.warn("Búsqueda abortada: El parámetro 'nombre' está vacío");
-            return PagedResponse.<ClienteResponse>builder()
-                    .content(Collections.emptyList())
-                    .page(PagedResponse.PageMetadata.builder()
-                            .size(pageable.getPageSize())
-                            .totalElements(0)
-                            .totalPages(0)
-                            .number(pageable.getPageNumber())
-                            .build())
-                    .build();
+        if (isNombreInvalido(nombre)) {
+            log.warn("Búsqueda abortada: parámetro 'nombre' vacío");
+            return buildEmptyPage(pageable);
         }
 
         String nombreBusqueda = nombre.trim();
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int offset = pageNumber * pageSize;
 
-        int offset = pageable.getPageNumber() * pageable.getPageSize();
-        int limit = pageable.getPageSize();
-
-        List<Cliente> clientes =
-                repository.searchByNombreProcedure(nombreBusqueda, limit, offset);
+        List < Cliente > clientes =
+                repository.searchByNombreProcedure(nombreBusqueda , pageSize , offset);
 
         long totalElements = repository.countByNombre(nombreBusqueda);
+        int totalPages = calculateTotalPages(totalElements , pageSize);
 
-        int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
+        validatePageBounds(pageNumber , totalPages , totalElements);
 
-        if (pageable.getPageNumber() >= totalPages && totalElements > 0) {
-            log.error("Se solicitó una página inexistente: {} de un total de {}",
-                    pageable.getPageNumber(), totalPages);
-        }
-
-        List<ClienteResponse> contenido = clientes.stream()
+        List < ClienteResponse > contenido = clientes.stream()
                 .map(clienteMapper::mapToResponse)
                 .toList();
 
-        log.info("Búsqueda completada. Se encontraron {} elementos en esta página. Total global: {}",
-                contenido.size(), totalElements);
+        log.info("Búsqueda completada. Elementos página: {} - Total global: {}" ,
+                contenido.size() , totalElements);
 
-        return PagedResponse.<ClienteResponse>builder()
-                .content(contenido)
+        return buildPagedResponse(contenido , pageable , totalElements , totalPages);
+    }
+
+    private boolean isNombreInvalido ( String nombre ) {
+        return nombre == null || nombre.isBlank();
+    }
+
+    private int calculateTotalPages ( long totalElements , int pageSize ) {
+        return (int) Math.ceil((double) totalElements / pageSize);
+    }
+
+    private void validatePageBounds ( int pageNumber , int totalPages , long totalElements ) {
+        if (pageNumber >= totalPages && totalElements > 0) {
+            log.error("Se solicitó una página inexistente: {} de un total de {}" ,
+                    pageNumber , totalPages);
+        }
+    }
+
+    private PagedResponse < ClienteResponse > buildEmptyPage ( Pageable pageable ) {
+        return buildPagedResponse(Collections.emptyList() , pageable , 0 , 0);
+    }
+
+    private PagedResponse < ClienteResponse > buildPagedResponse (
+            List < ClienteResponse > content ,
+            Pageable pageable ,
+            long totalElements ,
+            int totalPages ) {
+
+        return PagedResponse. < ClienteResponse >builder()
+                .content(content)
                 .page(PagedResponse.PageMetadata.builder()
                         .size(pageable.getPageSize())
                         .totalElements(totalElements)
@@ -192,30 +208,33 @@ public class ClienteServiceImpl implements ClienteService {
                 .build();
     }
 
-
-
-    @Transactional(readOnly = true)
+    @Transactional ( readOnly = true )
     @Override
-    public PagedResponse<ClienteResponse> listar(Pageable pageable) {
-        log.info("Solicitud de listado de clientes - Página: {}, Tamaño: {}, Orden: {}",
-                pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort());
+    public PagedResponse < ClienteResponse > listar ( Pageable pageable ) {
 
-        Page<Cliente> page = repository.findAll(pageable);
+        log.info("Solicitud listado clientes - Página: {}, Tamaño: {}, Orden: {}" ,
+                pageable.getPageNumber() , pageable.getPageSize() , pageable.getSort());
 
-        if (pageable.getPageNumber() >= page.getTotalPages() && page.getTotalElements() > 0) {
-            log.error("Se solicitó una página inexistente: {} de un total de {}",
-                    pageable.getPageNumber(), page.getTotalPages());
-        }
+        Page < Cliente > page = repository.findAll(pageable);
 
-        List<ClienteResponse> contenido = page.getContent().stream()
+        validatePageBounds(pageable.getPageNumber() , page.getTotalPages() , page.getTotalElements());
+
+        List < ClienteResponse > contenido = page.getContent().stream()
                 .map(clienteMapper::mapToResponse)
                 .toList();
 
-        log.info("Listado completado. Se encontraron {} elementos en esta página. Total global: {}",
-                contenido.size(), page.getTotalElements());
+        log.info("Listado completado. Elementos página: {} - Total global: {}" ,
+                contenido.size() , page.getTotalElements());
+
+        return buildPagedResponse(contenido , page);
+    }
+
+    private PagedResponse<ClienteResponse> buildPagedResponse(
+            List<ClienteResponse> content,
+            Page<?> page) {
 
         return PagedResponse.<ClienteResponse>builder()
-                .content(contenido)
+                .content(content)
                 .page(PagedResponse.PageMetadata.builder()
                         .size(page.getSize())
                         .totalElements(page.getTotalElements())
@@ -224,5 +243,6 @@ public class ClienteServiceImpl implements ClienteService {
                         .build())
                 .build();
     }
+
 
 }

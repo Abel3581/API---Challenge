@@ -12,7 +12,6 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Etapa 2: Ejecución (Run)
-# Cambiamos openjdk por eclipse-temurin que sí existe en el registro
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
